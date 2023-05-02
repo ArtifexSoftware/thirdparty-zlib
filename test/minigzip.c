@@ -118,7 +118,7 @@ static char *strwinerror (error)
         LocalFree(msgbuf);
     }
     else {
-        sprintf(buf, "unknown win32 error (%ld)", error);
+        sprintf(buf, "unknown win32 error (%lu)", error);
     }
 
     SetLastError(lasterr);
