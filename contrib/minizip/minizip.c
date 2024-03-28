@@ -41,6 +41,9 @@
 
 
 
+#ifndef _CRT_SECURE_NO_WARNINGS
+#  define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -74,6 +77,7 @@
 /* f: name of file to get info on, tmzip: return value: access,
    modification and creation times, dt: dostime */
 static int filetime(const char *f, tm_zip *tmzip, uLong *dt) {
+  (void)tmzip;
   int ret = 0;
   {
       FILETIME ftLocal;
@@ -190,7 +194,7 @@ static int getFileCrc(const char* filenameinzip, void* buf, unsigned long size_b
         do
         {
             err = ZIP_OK;
-            size_read = fread(buf,1,size_buf,fin);
+            size_read = (unsigned long)fread(buf,1,size_buf,fin);
             if (size_read < size_buf)
                 if (feof(fin)==0)
             {
@@ -242,7 +246,7 @@ int main(int argc, char *argv[]) {
     char filename_try[MAXFILENAME+16];
     int zipok;
     int err=0;
-    size_t size_buf=0;
+    unsigned long size_buf=0;
     void* buf=NULL;
     const char* password=NULL;
 
@@ -304,7 +308,7 @@ int main(int argc, char *argv[]) {
     }
     else
     {
-        int i,len;
+        int len;
         int dot_found=0;
 
         zipok = 1 ;
