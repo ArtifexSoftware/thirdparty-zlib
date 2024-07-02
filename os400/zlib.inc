@@ -371,6 +371,10 @@
      D  pending                      10U 0                                      Pending bytes
      D  bits                         10I 0                                      Pending bits
       *
+     D deflateUsed  PR               10I 0 extproc('deflateUsed')               Get used bits
+     D  strm                               like(z_stream)                       Compression stream
+     D  bits                         10I 0                                      Used bits
+      *
      D deflatePrime    PR            10I 0 extproc('deflatePrime')              Change level & strat
      D  strm                               like(z_stream)                       Compression stream
      D  bits                         10I 0 value                                # of bits to insert
