@@ -1809,6 +1809,8 @@ local block_state deflate_stored(deflate_state *s, int flush) {
     }
 
     /* We've done all we can with the available input and output. */
+    if (last)
+        s->bi_used = 8;
     return last ? finish_started : need_more;
 }
 
