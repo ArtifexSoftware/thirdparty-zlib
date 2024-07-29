@@ -62,6 +62,7 @@
 #endif
 
 #include "zip.h"
+#include "ints.h"
 
 #ifdef _WIN32
         #define USEWIN32IOAPI
@@ -226,7 +227,7 @@ static int isLargeFile(const char* filename) {
     FSEEKO_FUNC(pFile, 0, SEEK_END);
     pos = (ZPOS64_T)FTELLO_FUNC(pFile);
 
-                printf("File : %s is %llu bytes\n", filename, pos);
+                printf("File : %s is %"PUI64" bytes\n", filename, pos);
 
     if(pos >= 0xffffffff)
      largeFile = 1;

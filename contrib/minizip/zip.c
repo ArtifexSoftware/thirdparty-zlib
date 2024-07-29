@@ -25,8 +25,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
 #include <time.h>
+#ifndef ZLIB_CONST
+#  define ZLIB_CONST
+#endif
 #include "zlib.h"
 #include "zip.h"
 
@@ -125,9 +127,9 @@ typedef struct linkedlist_data_s
 
 // zipAlreadyThere() set functions for a set of zero-terminated strings, and
 // a block_t type for reading the central directory datablocks.
-typedef char const *set_key_t;
+typedef char *set_key_t;
 #define set_cmp(a, b) strcmp(a, b)
-#define set_drop(s, k) set_free(s, (void *)(intptr_t)(k))
+#define set_drop(s, k) set_free(s, k)
 #include "skipset.h"
 typedef struct {
     unsigned char *next;        // next byte in datablock data
@@ -496,7 +498,12 @@ extern int ZEXPORT zipAlreadyThere(zipFile file, char const *name) {
     }
 
     // Return true if name is in the central directory.
-    return set_found(&zip->set, name);
+    size_t len = strlen(name);
+    char *copy = set_alloc(&zip->set, NULL, len + 1);
+    strcpy(copy, name);
+    int found = set_found(&zip->set, copy);
+    set_free(&zip->set, copy);
+    return found;
 }
 
 
@@ -1646,7 +1653,7 @@ extern int ZEXPORT zipWriteInFileInZip(zipFile file, const void* buf, unsigned i
     else
 #endif
     {
-      zi->ci.stream.next_in = (Bytef*)(uintptr_t)buf;
+      zi->ci.stream.next_in = buf;
       zi->ci.stream.avail_in = len;
 
       while ((err==ZIP_OK) && (zi->ci.stream.avail_in>0))

@@ -56,11 +56,12 @@
 #define SKIPSET_H
 
 #include <stdlib.h>     // realloc(), free(), NULL, size_t
+#include <stddef.h>     // ptrdiff_t
 #include <setjmp.h>     // jmp_buf, longjmp()
 #include <errno.h>      // ENOMEM
-#include <stdint.h>     // int16_t, uint32_t, uint64_t
 #include <time.h>       // time(), clock()
 #include <assert.h>     // assert.h
+#include "ints.h"       // i16_t, ui32_t, ui64_t
 
 // Structures and functions below noted as "--private--" should not be used by
 // the application. set_t is partially private and partially public -- see the
@@ -74,20 +75,20 @@
 // Licensed under Apache License 2.0 (NO WARRANTY, etc. see website)
 // --private-- Random number generator state.
 typedef struct {
-    uint64_t state;     // 64-bit generator state
-    uint64_t inc;       // 63-bit sequence id
+    ui64_t state;       // 64-bit generator state
+    ui64_t inc;         // 63-bit sequence id
 } set_rand_t;
 // --private-- Initialize the state *gen using seed and seq. seed seeds the
 // advancing 64-bit state. seq is a sequence selection constant.
-void set_seed(set_rand_t *gen, uint64_t seed, uint64_t seq) {
+void set_seed(set_rand_t *gen, ui64_t seed, ui64_t seq) {
     gen->inc = (seq << 1) | 1;
     gen->state = (seed + gen->inc) * 6364136223846793005ULL + gen->inc;
 }
 // Return 32 random bits, advancing the state *gen.
-uint32_t set_rand(set_rand_t *gen) {
-    uint64_t state = gen->state;
+ui32_t set_rand(set_rand_t *gen) {
+    ui64_t state = gen->state;
     gen->state = state * 6364136223846793005ULL + gen->inc;
-    uint32_t mix = (uint32_t)(((state >> 18) ^ state) >> 27);
+    ui32_t mix = (ui32_t)(((state >> 18) ^ state) >> 27);
     int rot = state >> 59;
     return (mix >> rot) | (mix << ((-rot) & 31));
 }
@@ -97,8 +98,8 @@ uint32_t set_rand(set_rand_t *gen) {
 typedef struct set_node_s set_node_t;
 struct set_node_s {
     set_key_t key;          // the key (not used for head or path)
-    int16_t size;           // number of allocated pointers in right[]
-    int16_t fill;           // number of pointers in right[] filled in
+    i16_t size;             // number of allocated pointers in right[]
+    i16_t fill;             // number of pointers in right[] filled in
     set_node_t **right;     // pointer for each level, each to the right
 };
 
@@ -108,8 +109,8 @@ typedef struct set_s {
     set_node_t *head;       // skiplist head -- no key, just links
     set_node_t *path;       // right[] is path to key from set_found()
     set_node_t *node;       // node under construction, in case of longjmp()
-    int16_t depth;          // maximum depth of the skiplist
-    uint64_t ran;           // a precious trove of random bits
+    i16_t depth;            // maximum depth of the skiplist
+    ui64_t ran;             // a precious trove of random bits
     set_rand_t gen;         // random number generator state
     jmp_buf env;            // setjmp() environment for allocation errors
 #ifdef SET_TRACK
@@ -184,13 +185,13 @@ void set_grow(set_t *set, set_node_t *node, int want, int fill) {
         while (more < want)
             more <<= 1;
         node->right = set_alloc(set, node->right, more * sizeof(set_node_t *));
-        node->size = (int16_t)more;
+        node->size = (i16_t)more;
     }
     int i;
     if (fill)
         for (i = node->fill; i < want; i++)
             node->right[i] = set->head;
-    node->fill = (int16_t)want;
+    node->fill = (i16_t)want;
 }
 
 // --private-- Return a new node. key is left uninitialized.
@@ -231,8 +232,8 @@ void set_start(set_t *set) {
     set_grow(set, set->head, 1, 1); // one link back to head for an empty set
     *(unsigned char *)&set->head->key = 137;    // set id
     set->depth = 0;
-    set_seed(&set->gen, ((uint64_t)(uintptr_t)set << 32) ^
-                        ((uint64_t)time(NULL) << 12) ^ clock(), 0);
+    set_seed(&set->gen, ((ui64_t)(ptrdiff_t)set << 32) ^
+                        ((ui64_t)time(NULL) << 12) ^ clock(), 0);
     set->ran = 1;
 }
 
@@ -337,7 +338,7 @@ int set_insert(set_t *set, set_key_t key) {
         // The maximum depth is now deeper. Update the structures.
         set_grow(set, set->path, level + 1, 1);
         set_grow(set, set->head, level + 1, 1);
-        set->depth = (int16_t)level;
+        set->depth = (i16_t)level;
     }
 
     // Make a new node for the provided key, and insert it in the lists up to
