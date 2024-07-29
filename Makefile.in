@@ -176,7 +176,7 @@ inftrees.o: $(SRCDIR)inftrees.c
 trees.o: $(SRCDIR)trees.c
 	$(CC) $(CFLAGS) $(ZINC) -c -o $@ $(SRCDIR)trees.c
 
-zutil.o: $(SRCDIR)zutil.c
+zutil.o: $(SRCDIR)zutil.c $(SRCDIR)gzguts.h
 	$(CC) $(CFLAGS) $(ZINC) -c -o $@ $(SRCDIR)zutil.c
 
 compress.o: $(SRCDIR)compress.c
@@ -238,7 +238,7 @@ trees.lo: $(SRCDIR)trees.c
 	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/trees.o $(SRCDIR)trees.c
 	-@mv objs/trees.o $@
 
-zutil.lo: $(SRCDIR)zutil.c
+zutil.lo: $(SRCDIR)zutil.c $(SRCDIR)gzguts.h
 	-@mkdir objs 2>/dev/null || test -d objs
 	$(CC) $(SFLAGS) $(ZINC) -DPIC -c -o objs/zutil.o $(SRCDIR)zutil.c
 	-@mv objs/zutil.o $@
@@ -389,7 +389,8 @@ distclean: clean zconf zconf.h.cmakein
 tags:
 	etags $(SRCDIR)*.[ch]
 
-adler32.o zutil.o: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h
+adler32.o: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h
+zutil.o: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h $(SRCDIR)gzguts.h
 gzclose.o gzlib.o gzread.o gzwrite.o: $(SRCDIR)zlib.h zconf.h $(SRCDIR)gzguts.h
 compress.o example.o minigzip.o uncompr.o: $(SRCDIR)zlib.h zconf.h
 crc32.o: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h $(SRCDIR)crc32.h
@@ -399,7 +400,8 @@ inffast.o: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h $(SRCDIR)inftrees.h $(SRCDIR
 inftrees.o: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h $(SRCDIR)inftrees.h
 trees.o: $(SRCDIR)deflate.h $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h $(SRCDIR)trees.h
 
-adler32.lo zutil.lo: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h
+adler32.lo: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h
+zutil.lo: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h $(SRCDIR)gzguts.h
 gzclose.lo gzlib.lo gzread.lo gzwrite.lo: $(SRCDIR)zlib.h zconf.h $(SRCDIR)gzguts.h
 compress.lo example.lo minigzip.lo uncompr.lo: $(SRCDIR)zlib.h zconf.h
 crc32.lo: $(SRCDIR)zutil.h $(SRCDIR)zlib.h zconf.h $(SRCDIR)crc32.h
