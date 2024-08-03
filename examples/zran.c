@@ -1,7 +1,7 @@
 /* zran.c -- example of deflate stream indexing and random access
  * Copyright (C) 2005, 2012, 2018, 2023, 2024 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
- * Version 1.5  4 Feb 2024  Mark Adler */
+ * Version 1.6  2 Aug 2024  Mark Adler */
 
 /* Version History:
  1.0  29 May 2005  First version
@@ -18,6 +18,7 @@
                    Stop decoding once request is satisfied
                    Provide a reusable inflate engine in the index
                    Allocate the dictionaries to reduce memory usage
+ 1.6   2 Aug 2024  Remove unneeded dependency on limits.h
  */
 
 // Illustrate the use of Z_BLOCK, inflatePrime(), and inflateSetDictionary()
@@ -61,7 +62,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
 #include "zlib.h"
 #include "zran.h"
 
@@ -390,8 +390,8 @@ ptrdiff_t deflate_index_extract(FILE *in, struct deflate_index *index,
         }
         else {
             // Uncompress up to left bytes into buf.
-            index->strm.avail_out = left < UINT_MAX ? (unsigned)left :
-                                                      UINT_MAX;
+            index->strm.avail_out = left < (unsigned)-1 ? (unsigned)left :
+                                                          (unsigned)-1;
             index->strm.next_out = buf + len - left;
         }
 
