@@ -62,7 +62,7 @@ jobs:
 
           - name: macOS GCC
             os: macos-latest
-            compiler: gcc-11
+            compiler: gcc-12
             cflags: -Werror -Wall -Wextra
 
     steps:
