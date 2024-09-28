@@ -122,14 +122,15 @@ case "$1" in
       echo 'usage:' | tee -a configure.log
       echo '  configure [--const] [--zprefix] [--prefix=PREFIX]  [--eprefix=EXPREFIX]' | tee -a configure.log
       echo '    [--insecure] [--static] [--64] [--libdir=LIBDIR] [--sharedlibdir=LIBDIR]' | tee -a configure.log
-      echo '    [--includedir=INCLUDEDIR] [--archs="-arch i386 -arch x86_64"]' | tee -a configure.log
-      echo '    [--disable-crcvx]' | tee -a configure.log
+      echo '    [--includedir=INCLUDEDIR] [--mandir=MANDIR]' | tee -a configure.log
+      echo '    [--archs="-arch i386 -arch x86_64"] [--disable-crcvx]' | tee -a configure.log
         exit 0 ;;
     -p*=* | --prefix=*) prefix=`echo $1 | sed 's/.*=//'`; shift ;;
     -e*=* | --eprefix=*) exec_prefix=`echo $1 | sed 's/.*=//'`; shift ;;
     -l*=* | --libdir=*) libdir=`echo $1 | sed 's/.*=//'`; shift ;;
     --sharedlibdir=*) sharedlibdir=`echo $1 | sed 's/.*=//'`; shift ;;
     -i*=* | --includedir=*) includedir=`echo $1 | sed 's/.*=//'`;shift ;;
+    -m*=* | --mandir=*) mandir=`echo $1 | sed 's/.*=//'`;shift ;;
     -u*=* | --uname=*) uname=`echo $1 | sed 's/.*=//'`;shift ;;
     -p* | --prefix) prefix="$2"; shift; shift ;;
     -e* | --eprefix) exec_prefix="$2"; shift; shift ;;
