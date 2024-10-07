@@ -228,7 +228,7 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
     uname=`(uname -s || echo unknown) 2>/dev/null`
   fi
   case "$uname" in
-  Linux* | linux* | *-linux* | GNU | GNU/* | solaris*)
+  Linux* | linux* | *-linux* | GNU | GNU/* | solaris* | Haiku)
         case "$mname" in
         *sparc*)
             LDFLAGS="${LDFLAGS} -Wl,--no-warn-rwx-segments" ;;
