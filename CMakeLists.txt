@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.4.4...3.15.0)
+cmake_minimum_required(VERSION 3.1)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib C)
@@ -209,6 +209,15 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
                 RENAME zlib1.dll
                 DESTINATION "${CMAKE_INSTALL_BINDIR}")
         endif(ZLIB_INSTALL_COMPAT_DLL)
+
+        if(MSVC)
+            install(FILES $<TARGET_PDB_FILE:zlib>
+                DESTINATION ${CMAKE_INSTALL_BINDIR}
+                CONFIGURATIONS Debug OR RelWithDebInfo
+                OPTIONAL
+            )
+        endif(MSVC)
+
     endif(ZLIB_BUILD_SHARED)
 
     if(ZLIB_BUILD_STATIC)
