@@ -9,6 +9,10 @@ option(ZLIB_BUILD_EXAMPLES "Enable Zlib Examples" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Enable building zlib static library" ON)
 
+if(WIN32)
+    option(ZLIB_INSTALL_COMPAT_DLL "Install a copy as zlib1.dll" ON)
+endif(WIN32)
+
 include(CheckTypeSize)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
@@ -56,7 +60,6 @@ endif()
 check_include_file(unistd.h Z_HAVE_UNISTD_H)
 
 if(MSVC)
-    set(CMAKE_DEBUG_POSTFIX "d")
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -147,13 +150,21 @@ if(MINGW)
     set(ZLIB_DLL_SRCS ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj)
 endif(MINGW)
 
+if(WIN32)
+    set (zlib_static_suffix "s")
+    set (zlib_debug_suffix "d")
+endif(WIN32)
+
 if(ZLIB_BUILD_SHARED)
     add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
     target_include_directories(zlib PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
-    set_target_properties(zlib PROPERTIES DEFINE_SYMBOL ZLIB_DLL)
-    set_target_properties(zlib PROPERTIES SOVERSION 1)
+    set_target_properties(zlib PROPERTIES
+        DEFINE_SYMBOL ZLIB_DLL
+        SOVERSION 1
+        PROPERTIES OUTPUT_NAME z
+        PROPERTIES OUTPUT_NAME_DEBUG z${zlib_debug_suffix})
 endif(ZLIB_BUILD_SHARED)
 
 if(ZLIB_BUILD_STATIC)
@@ -161,6 +172,9 @@ if(ZLIB_BUILD_STATIC)
     target_include_directories(zlibstatic PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+    set_target_properties(zlibstatic PROPERTIES
+        PROPERTIES OUTPUT_NAME z${zlib_static_suffix}
+        PROPERTIES OUTPUT_NAME_DEBUG z${zlib_static_suffix}${zlib_debug_suffix})
 endif(ZLIB_BUILD_STATIC)
 
 if(NOT CYGWIN AND ZLIB_BUILD_SHARED)
@@ -177,19 +191,11 @@ endif()
 if(UNIX)
     # On unix-like platforms the library is almost always called libz
     if(ZLIB_BUILD_SHARED)
-        set_target_properties(zlib PROPERTIES OUTPUT_NAME z)
         if(NOT APPLE AND NOT(CMAKE_SYSTEM_NAME STREQUAL AIX))
             set_target_properties(zlib PROPERTIES
                 LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/zlib.map\"")
         endif()
     endif(ZLIB_BUILD_SHARED)
-
-    if(ZLIB_BUILD_STATIC)
-        set_target_properties(zlibstatic PROPERTIES OUTPUT_NAME z)
-    endif(ZLIB_BUILD_STATIC)
-elseif(BUILD_SHARED_LIBS AND WIN32)
-    # Creates zlib1.dll when building shared library version
-    set_target_properties(zlib PROPERTIES SUFFIX "1.dll")
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
@@ -197,14 +203,19 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
         install(TARGETS zlib
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" )
+            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        if(ZLIB_INSTALL_COMPAT_DLL)
+            install(FILES  $<TARGET_FILE:zlib>
+                RENAME zlib1.dll
+                DESTINATION "${CMAKE_INSTALL_BINDIR}")
+        endif(ZLIB_INSTALL_COMPAT_DLL)
     endif(ZLIB_BUILD_SHARED)
 
     if(ZLIB_BUILD_STATIC)
         install(TARGETS zlibstatic
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
-            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" )
+            LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
     endif(ZLIB_BUILD_STATIC)
 endif()
 if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
