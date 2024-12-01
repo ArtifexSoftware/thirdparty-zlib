@@ -82,31 +82,8 @@ set(ZLIB_SRCS
     zutil.c
 )
 
-if(NOT MINGW)
-    set(ZLIB_DLL_SRCS
-        win32/zlib1.rc # If present will override custom build rule below.
-    )
-endif()
-
-# parse the full version number from zlib.h and include in ZLIB_FULL_VERSION
-file(READ ${zlib_SOURCE_DIR}/zlib.h _zlib_h_contents)
-string(REGEX REPLACE ".*#define[ \t]+ZLIB_VERSION[ \t]+\"([-0-9A-Za-z.]+)\".*"
-    "\\1" ZLIB_VERSION ${_zlib_h_contents})
-if(MINGW)
-    # This gets us DLL resource information when compiling on MinGW.
-    if(NOT CMAKE_RC_COMPILER)
-        set(CMAKE_RC_COMPILER windres.exe)
-    endif()
-
-    add_custom_command(OUTPUT ${zlib_BINARY_DIR}/zlib1rc.obj
-                       COMMAND ${CMAKE_RC_COMPILER}
-                            -D GCC_WINDRES
-                            -I ${zlib_SOURCE_DIR}
-                            -I ${zlib_BINARY_DIR}
-                            -o ${zlib_BINARY_DIR}/zlib1rc.obj
-                            -i ${zlib_SOURCE_DIR}/win32/zlib1.rc)
-    set(ZLIB_DLL_SRCS ${zlib_BINARY_DIR}/zlib1rc.obj)
-endif(MINGW)
+set_source_files_properties(win32/zlib1.rc PROPERTIES
+    COMPILE_FLAGS $<$<STREQUAL:${CMAKE_RC_OUTPUT_EXTENSION},.obj>:-DGCC_WINDRES>)
 
 if(WIN32)
     set (zlib_static_suffix "s")
@@ -114,7 +91,12 @@ if(WIN32)
 endif(WIN32)
 
 if(ZLIB_BUILD_SHARED)
-    add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+    add_library(zlib SHARED
+        ${ZLIB_SRCS}
+        ${ZLIB_DLL_SRCS}
+        ${ZLIB_PUBLIC_HDRS}
+        ${ZLIB_PRIVATE_HDRS}
+        $<$<BOOL:${WIN32}>:win32/zlib1.rc>)
     target_include_directories(zlib PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
         $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
@@ -137,7 +119,10 @@ if(ZLIB_BUILD_SHARED)
 endif(ZLIB_BUILD_SHARED)
 
 if(ZLIB_BUILD_STATIC)
-    add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
+    add_library(zlibstatic STATIC
+        ${ZLIB_SRCS}
+        ${ZLIB_PUBLIC_HDRS}
+        ${ZLIB_PRIVATE_HDRS})
     target_include_directories(zlibstatic PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
         $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
