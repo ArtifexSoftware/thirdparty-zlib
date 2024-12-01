@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
 project(zlib
     LANGUAGES C
@@ -147,7 +146,7 @@ if(NOT CYGWIN AND ZLIB_BUILD_SHARED)
     # This has no effect with MSVC, on that platform the version info for
     # the DLL comes from the resource file win32/zlib1.rc
     set_target_properties(zlib PROPERTIES VERSION ${zlib_VERSION})
-endif()
+endif(NOT CYGWIN AND ZLIB_BUILD_SHARED)
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
     if(ZLIB_BUILD_SHARED)
@@ -177,16 +176,16 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
     endif(ZLIB_BUILD_STATIC)
-endif()
+endif(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
 if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
     install(FILES ${ZLIB_PUBLIC_HDRS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-endif()
+endif(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
 if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
     install(FILES zlib.3 DESTINATION "${CMAKE_INSTALL_MANDIR}/man3")
-endif()
+endif(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
 if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
     install(FILES ${ZLIB_PC} DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-endif()
+endif(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
 
 #============================================================================
 # Example binaries
@@ -208,5 +207,5 @@ if(ZLIB_BUILD_EXAMPLES)
         add_executable(minigzip64 test/minigzip.c)
         target_compile_definitions(minigzip64 PRIVATE LARGEFILE64_SOURCE=1)
         target_link_libraries(minigzip64 zlib)
-    endif()
-endif()
+    endif(HAVE_OFF64_T)
+endif(ZLIB_BUILD_EXAMPLES)
