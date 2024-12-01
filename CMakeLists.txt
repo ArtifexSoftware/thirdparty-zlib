@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 
-project(zlib C)
-
-set(VERSION "1.3.1.1")
+project(zlib
+    LANGUAGES C
+    VERSION 1.3.1.1)
 
 option(ZLIB_BUILD_EXAMPLES "Enable Zlib Examples" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
@@ -62,28 +62,28 @@ check_include_file(unistd.h Z_HAVE_UNISTD_H)
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
-    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+    include_directories(${zlib_SOURCE_DIR})
 endif()
 
 option(RENAME_ZCONF "Rename the zconf when building out of source" ON)
-if(NOT CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_CURRENT_BINARY_DIR AND RENAME_ZCONF)
+if(NOT zlib_SOURCE_DIR STREQUAL zlib_BINARY_DIR AND RENAME_ZCONF)
     # If we're doing an out of source build and the user has a zconf.h
     # in their source tree...
-    if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h)
+    if(EXISTS ${zlib_SOURCE_DIR}/zconf.h)
         message(STATUS "Renaming")
-        message(STATUS "    ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h")
+        message(STATUS "    ${zlib_SOURCE_DIR}/zconf.h")
         message(STATUS "to 'zconf.h.included' because this file is included with zlib")
         message(STATUS "but CMake generates it automatically in the build directory.")
-        file(RENAME ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h ${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.included)
+        file(RENAME ${zlib_SOURCE_DIR}/zconf.h ${zlib_SOURCE_DIR}/zconf.h.included)
   endif()
 endif()
 
-set(ZLIB_PC ${CMAKE_CURRENT_BINARY_DIR}/zlib.pc)
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/zlib.pc.cmakein
+set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
+configure_file( ${zlib_SOURCE_DIR}/zlib.pc.cmakein
 		${ZLIB_PC} @ONLY)
-configure_file(	${CMAKE_CURRENT_SOURCE_DIR}/zconf.h.cmakein
-		${CMAKE_CURRENT_BINARY_DIR}/zconf.h @ONLY)
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
+configure_file(	${zlib_SOURCE_DIR}/zconf.h.cmakein
+		${zlib_BINARY_DIR}/zconf.h @ONLY)
+include_directories(${zlib_BINARY_DIR} ${zlib_SOURCE_DIR})
 
 
 #============================================================================
@@ -91,7 +91,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 #============================================================================
 
 set(ZLIB_PUBLIC_HDRS
-    ${CMAKE_CURRENT_BINARY_DIR}/zconf.h
+    ${zlib_BINARY_DIR}/zconf.h
     zlib.h
 )
 set(ZLIB_PRIVATE_HDRS
@@ -130,24 +130,23 @@ if(NOT MINGW)
 endif()
 
 # parse the full version number from zlib.h and include in ZLIB_FULL_VERSION
-file(READ ${CMAKE_CURRENT_SOURCE_DIR}/zlib.h _zlib_h_contents)
+file(READ ${zlib_SOURCE_DIR}/zlib.h _zlib_h_contents)
 string(REGEX REPLACE ".*#define[ \t]+ZLIB_VERSION[ \t]+\"([-0-9A-Za-z.]+)\".*"
-    "\\1" ZLIB_FULL_VERSION ${_zlib_h_contents})
-
+    "\\1" ZLIB_VERSION ${_zlib_h_contents})
 if(MINGW)
     # This gets us DLL resource information when compiling on MinGW.
     if(NOT CMAKE_RC_COMPILER)
         set(CMAKE_RC_COMPILER windres.exe)
     endif()
 
-    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj
+    add_custom_command(OUTPUT ${zlib_BINARY_DIR}/zlib1rc.obj
                        COMMAND ${CMAKE_RC_COMPILER}
                             -D GCC_WINDRES
-                            -I ${CMAKE_CURRENT_SOURCE_DIR}
-                            -I ${CMAKE_CURRENT_BINARY_DIR}
-                            -o ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj
-                            -i ${CMAKE_CURRENT_SOURCE_DIR}/win32/zlib1.rc)
-    set(ZLIB_DLL_SRCS ${CMAKE_CURRENT_BINARY_DIR}/zlib1rc.obj)
+                            -I ${zlib_SOURCE_DIR}
+                            -I ${zlib_BINARY_DIR}
+                            -o ${zlib_BINARY_DIR}/zlib1rc.obj
+                            -i ${zlib_SOURCE_DIR}/win32/zlib1.rc)
+    set(ZLIB_DLL_SRCS ${zlib_BINARY_DIR}/zlib1rc.obj)
 endif(MINGW)
 
 if(WIN32)
@@ -158,8 +157,8 @@ endif(WIN32)
 if(ZLIB_BUILD_SHARED)
     add_library(zlib SHARED ${ZLIB_SRCS} ${ZLIB_DLL_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
     target_include_directories(zlib PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+        $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
+        $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
     set_target_properties(zlib PROPERTIES
         DEFINE_SYMBOL ZLIB_DLL
         SOVERSION 1
@@ -168,15 +167,15 @@ if(ZLIB_BUILD_SHARED)
     if(UNIX AND NOT APPLE AND NOT(CMAKE_SYSTEM_NAME STREQUAL AIX))
         # On unix-like platforms the library is almost always called libz
         set_target_properties(zlib PROPERTIES
-            LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/zlib.map\"")
+            LINK_FLAGS "-Wl,--version-script,\"${zlib_SOURCE_DIR}/zlib.map\"")
     endif(UNIX AND NOT APPLE AND NOT(CMAKE_SYSTEM_NAME STREQUAL AIX))
 endif(ZLIB_BUILD_SHARED)
 
 if(ZLIB_BUILD_STATIC)
     add_library(zlibstatic STATIC ${ZLIB_SRCS} ${ZLIB_PUBLIC_HDRS} ${ZLIB_PRIVATE_HDRS})
     target_include_directories(zlibstatic PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+        $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
+        $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
     set_target_properties(zlibstatic PROPERTIES
         PROPERTIES OUTPUT_NAME z${zlib_static_suffix}
         PROPERTIES OUTPUT_NAME_DEBUG z${zlib_static_suffix}${zlib_debug_suffix})
@@ -190,7 +189,7 @@ if(NOT CYGWIN AND ZLIB_BUILD_SHARED)
     #
     # This has no effect with MSVC, on that platform the version info for
     # the DLL comes from the resource file win32/zlib1.rc
-    set_target_properties(zlib PROPERTIES VERSION ${ZLIB_FULL_VERSION})
+    set_target_properties(zlib PROPERTIES VERSION ${zlib_VERSION})
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
