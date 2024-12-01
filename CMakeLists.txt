@@ -65,19 +65,6 @@ if(MSVC)
     include_directories(${zlib_SOURCE_DIR})
 endif()
 
-option(RENAME_ZCONF "Rename the zconf when building out of source" ON)
-if(NOT zlib_SOURCE_DIR STREQUAL zlib_BINARY_DIR AND RENAME_ZCONF)
-    # If we're doing an out of source build and the user has a zconf.h
-    # in their source tree...
-    if(EXISTS ${zlib_SOURCE_DIR}/zconf.h)
-        message(STATUS "Renaming")
-        message(STATUS "    ${zlib_SOURCE_DIR}/zconf.h")
-        message(STATUS "to 'zconf.h.included' because this file is included with zlib")
-        message(STATUS "but CMake generates it automatically in the build directory.")
-        file(RENAME ${zlib_SOURCE_DIR}/zconf.h ${zlib_SOURCE_DIR}/zconf.h.included)
-  endif()
-endif()
-
 set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
 configure_file( ${zlib_SOURCE_DIR}/zlib.pc.cmakein
 		${ZLIB_PC} @ONLY)
