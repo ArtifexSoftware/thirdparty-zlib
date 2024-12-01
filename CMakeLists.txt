@@ -47,7 +47,6 @@ check_include_file(unistd.h Z_HAVE_UNISTD_H)
 if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
     add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
-    include_directories(${zlib_SOURCE_DIR})
 endif()
 
 set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
