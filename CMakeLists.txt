@@ -165,6 +165,11 @@ if(ZLIB_BUILD_SHARED)
         SOVERSION 1
         PROPERTIES OUTPUT_NAME z
         PROPERTIES OUTPUT_NAME_DEBUG z${zlib_debug_suffix})
+    if(UNIX AND NOT APPLE AND NOT(CMAKE_SYSTEM_NAME STREQUAL AIX))
+        # On unix-like platforms the library is almost always called libz
+        set_target_properties(zlib PROPERTIES
+            LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/zlib.map\"")
+    endif(UNIX AND NOT APPLE AND NOT(CMAKE_SYSTEM_NAME STREQUAL AIX))
 endif(ZLIB_BUILD_SHARED)
 
 if(ZLIB_BUILD_STATIC)
@@ -186,16 +191,6 @@ if(NOT CYGWIN AND ZLIB_BUILD_SHARED)
     # This has no effect with MSVC, on that platform the version info for
     # the DLL comes from the resource file win32/zlib1.rc
     set_target_properties(zlib PROPERTIES VERSION ${ZLIB_FULL_VERSION})
-endif()
-
-if(UNIX)
-    # On unix-like platforms the library is almost always called libz
-    if(ZLIB_BUILD_SHARED)
-        if(NOT APPLE AND NOT(CMAKE_SYSTEM_NAME STREQUAL AIX))
-            set_target_properties(zlib PROPERTIES
-                LINK_FLAGS "-Wl,--version-script,\"${CMAKE_CURRENT_SOURCE_DIR}/zlib.map\"")
-        endif()
-    endif(ZLIB_BUILD_SHARED)
 endif()
 
 if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
