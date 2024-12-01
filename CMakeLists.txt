@@ -24,30 +24,18 @@ enable_testing()
 # Check to see if we have large file support
 #
 set(CMAKE_REQUIRED_DEFINITIONS -D_LARGEFILE64_SOURCE=1)
-
 check_type_size(off64_t OFF64_T)
-if(HAVE_OFF64_T)
-   add_definitions(-D_LARGEFILE64_SOURCE=1)
-endif()
 set(CMAKE_REQUIRED_DEFINITIONS) # clear variable
 
 #
 # Check for fseeko
 #
 check_function_exists(fseeko HAVE_FSEEKO)
-if(NOT HAVE_FSEEKO)
-    add_definitions(-DNO_FSEEKO)
-endif()
 
 #
 # Check for unistd.h
 #
 check_include_file(unistd.h Z_HAVE_UNISTD_H)
-
-if(MSVC)
-    add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
-    add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
-endif()
 
 set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
 configure_file( ${zlib_SOURCE_DIR}/zlib.pc.cmakein
@@ -130,6 +118,12 @@ if(ZLIB_BUILD_SHARED)
     target_include_directories(zlib PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
         $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
+    target_compile_definitions(zlib
+        PRIVATE
+            $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>
+            $<$<BOOL:NOT:${HAVE_FSEEKO}>:NO_FSEEKO>
+            $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_DEPRECATE>
+            $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>)
     set_target_properties(zlib PROPERTIES
         DEFINE_SYMBOL ZLIB_DLL
         SOVERSION 1
@@ -147,6 +141,13 @@ if(ZLIB_BUILD_STATIC)
     target_include_directories(zlibstatic PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
         $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
+    target_compile_definitions(zlibstatic
+        PRIVATE
+            $<$<BOOL:NOT:${HAVE_FSEEKO}>:NO_FSEEKO>
+            $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_DEPRECATE>
+            $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>
+        PUBLIC
+            $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>)
     set_target_properties(zlibstatic PROPERTIES
         PROPERTIES OUTPUT_NAME z${zlib_static_suffix}
         PROPERTIES OUTPUT_NAME_DEBUG z${zlib_static_suffix}${zlib_debug_suffix})
