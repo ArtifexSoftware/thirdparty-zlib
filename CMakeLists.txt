@@ -7,6 +7,7 @@ project(zlib
 option(ZLIB_BUILD_EXAMPLES "Enable Zlib Examples" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Enable building zlib static library" ON)
+option(ZLIB_INSTALL_LIBRARIES "Enable installation of zlib" ON)
 
 if(WIN32)
     option(ZLIB_INSTALL_COMPAT_DLL "Install a copy as zlib1.dll" ON)
@@ -146,44 +147,48 @@ if(NOT CYGWIN AND ZLIB_BUILD_SHARED)
     set_target_properties(zlib PROPERTIES VERSION ${zlib_VERSION})
 endif(NOT CYGWIN AND ZLIB_BUILD_SHARED)
 
-if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
+if(ZLIB_INSTALL_LIBRARIES)
     if(ZLIB_BUILD_SHARED)
         install(TARGETS zlib
+            COMPONENT Runtime
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
         if(ZLIB_INSTALL_COMPAT_DLL)
             install(FILES  $<TARGET_FILE:zlib>
+                COMPONENT Runtime
                 RENAME zlib1.dll
                 DESTINATION "${CMAKE_INSTALL_BINDIR}")
         endif(ZLIB_INSTALL_COMPAT_DLL)
 
         if(MSVC)
             install(FILES $<TARGET_PDB_FILE:zlib>
+                COMPONENT Runtime
                 DESTINATION ${CMAKE_INSTALL_BINDIR}
                 CONFIGURATIONS Debug OR RelWithDebInfo
                 OPTIONAL
             )
         endif(MSVC)
-
     endif(ZLIB_BUILD_SHARED)
 
     if(ZLIB_BUILD_STATIC)
         install(TARGETS zlibstatic
+            COMPONENT Development
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
     endif(ZLIB_BUILD_STATIC)
-endif(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
-if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
-    install(FILES ${ZLIB_PUBLIC_HDRS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
-endif(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
-if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
-    install(FILES zlib.3 DESTINATION "${CMAKE_INSTALL_MANDIR}/man3")
-endif(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
-if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
-    install(FILES ${ZLIB_PC} DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-endif(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
+
+    install(FILES ${ZLIB_PUBLIC_HDRS}
+            COMPONENT Development
+            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+        FILES zlib.3
+            COMPONENT Development
+            DESTINATION "${CMAKE_INSTALL_MANDIR}/man3"
+        FILES ${ZLIB_PC}
+            COMPONENT Development
+            DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
+endif(ZLIB_INSTALL_LIBRARIES)
 
 #============================================================================
 # Example binaries
