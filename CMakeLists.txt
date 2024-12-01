@@ -37,12 +37,11 @@ check_function_exists(fseeko HAVE_FSEEKO)
 check_include_file(unistd.h Z_HAVE_UNISTD_H)
 
 set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
-configure_file( ${zlib_SOURCE_DIR}/zlib.pc.cmakein
-		${ZLIB_PC} @ONLY)
-configure_file(	${zlib_SOURCE_DIR}/zconf.h.cmakein
-		${zlib_BINARY_DIR}/zconf.h @ONLY)
+configure_file(${zlib_SOURCE_DIR}/zlib.pc.cmakein
+               ${ZLIB_PC} @ONLY)
+configure_file(${zlib_SOURCE_DIR}/zconf.h.cmakein
+               ${zlib_BINARY_DIR}/zconf.h @ONLY)
 include_directories(${zlib_BINARY_DIR} ${zlib_SOURCE_DIR})
-
 
 #============================================================================
 # zlib
@@ -50,8 +49,8 @@ include_directories(${zlib_BINARY_DIR} ${zlib_SOURCE_DIR})
 
 set(ZLIB_PUBLIC_HDRS
     ${zlib_BINARY_DIR}/zconf.h
-    zlib.h
-)
+    zlib.h)
+
 set(ZLIB_PRIVATE_HDRS
     crc32.h
     deflate.h
@@ -61,8 +60,8 @@ set(ZLIB_PRIVATE_HDRS
     inflate.h
     inftrees.h
     trees.h
-    zutil.h
-)
+    zutil.h)
+
 set(ZLIB_SRCS
     adler32.c
     compress.c
@@ -78,8 +77,7 @@ set(ZLIB_SRCS
     inffast.c
     trees.c
     uncompr.c
-    zutil.c
-)
+    zutil.c)
 
 set_source_files_properties(win32/zlib1.rc PROPERTIES
     COMPILE_FLAGS $<$<STREQUAL:${CMAKE_RC_OUTPUT_EXTENSION},.obj>:-DGCC_WINDRES>)
@@ -148,7 +146,7 @@ if(NOT CYGWIN AND ZLIB_BUILD_SHARED)
     set_target_properties(zlib PROPERTIES VERSION ${zlib_VERSION})
 endif(NOT CYGWIN AND ZLIB_BUILD_SHARED)
 
-if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
+if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
     if(ZLIB_BUILD_SHARED)
         install(TARGETS zlib
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
@@ -176,16 +174,16 @@ if(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
     endif(ZLIB_BUILD_STATIC)
-endif(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL )
-if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
+endif(NOT SKIP_INSTALL_LIBRARIES AND NOT SKIP_INSTALL_ALL)
+if(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL)
     install(FILES ${ZLIB_PUBLIC_HDRS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 endif(NOT SKIP_INSTALL_HEADERS AND NOT SKIP_INSTALL_ALL )
 if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
     install(FILES zlib.3 DESTINATION "${CMAKE_INSTALL_MANDIR}/man3")
-endif(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
-if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
+endif(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
+if(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
     install(FILES ${ZLIB_PC} DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-endif(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL )
+endif(NOT SKIP_INSTALL_FILES AND NOT SKIP_INSTALL_ALL)
 
 #============================================================================
 # Example binaries
