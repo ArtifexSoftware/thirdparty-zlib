@@ -4,7 +4,7 @@ project(zlib
     LANGUAGES C
     VERSION 1.3.1.1)
 
-option(ZLIB_BUILD_EXAMPLES "Enable Zlib Examples" ON)
+option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Enable building zlib static library" ON)
 option(ZLIB_INSTALL_LIBRARIES "Enable installation of zlib" ON)
@@ -193,7 +193,8 @@ endif(ZLIB_INSTALL_LIBRARIES)
 #============================================================================
 # Example binaries
 #============================================================================
-if(ZLIB_BUILD_EXAMPLES)
+if(ZLIB_BUILD_TESTING)
+    enable_testing()
     add_executable(zlib_example test/example.c)
     target_link_libraries(zlib_example zlib)
     add_test(zlib_example zlib_example)
@@ -211,4 +212,4 @@ if(ZLIB_BUILD_EXAMPLES)
         target_compile_definitions(minigzip64 PRIVATE LARGEFILE64_SOURCE=1)
         target_link_libraries(minigzip64 zlib)
     endif(HAVE_OFF64_T)
-endif(ZLIB_BUILD_EXAMPLES)
+endif(ZLIB_BUILD_TESTING)
