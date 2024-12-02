@@ -96,7 +96,8 @@ if(ZLIB_BUILD_SHARED)
         $<$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>>:win32/zlib1.rc>)
     target_include_directories(zlib PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
-        $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
+        $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     target_compile_definitions(zlib
         PRIVATE
             $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>
@@ -129,7 +130,8 @@ if(ZLIB_BUILD_STATIC)
         ${ZLIB_PRIVATE_HDRS})
     target_include_directories(zlibstatic PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
-        $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
+        $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     target_compile_definitions(zlibstatic
         PRIVATE
             $<$<BOOL:NOT:${HAVE_FSEEKO}>:NO_FSEEKO>
