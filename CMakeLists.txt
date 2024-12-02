@@ -83,8 +83,8 @@ set_source_files_properties(win32/zlib1.rc PROPERTIES
     COMPILE_FLAGS $<$<STREQUAL:${CMAKE_RC_OUTPUT_EXTENSION},.obj>:-DGCC_WINDRES>)
 
 if(WIN32)
-    set (zlib_static_suffix "s")
-    set (zlib_debug_suffix "d")
+    set(zlib_static_suffix "s")
+    set(CMAKE_DEBUG_POSTFIX "d")
 endif(WIN32)
 
 if(ZLIB_BUILD_SHARED)
@@ -112,9 +112,8 @@ if(ZLIB_BUILD_SHARED)
     # the DLL comes from the resource file win32/zlib1.rc
     set_target_properties(zlib PROPERTIES
         DEFINE_SYMBOL ZLIB_DLL
+        OUTPUT_NAME z
         SOVERSION 1
-        PROPERTIES OUTPUT_NAME z
-        PROPERTIES OUTPUT_NAME_DEBUG z${zlib_debug_suffix}
         $<$<BOOL:NOT:$CYGWIN}>:VERSION ${zlib_VERSION}>)
     if(UNIX AND NOT APPLE AND NOT(CMAKE_SYSTEM_NAME STREQUAL AIX))
         # On unix-like platforms the library is almost always called libz
@@ -139,8 +138,8 @@ if(ZLIB_BUILD_STATIC)
         PUBLIC
             $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>)
     set_target_properties(zlibstatic PROPERTIES
-        PROPERTIES OUTPUT_NAME z${zlib_static_suffix}
-        PROPERTIES OUTPUT_NAME_DEBUG z${zlib_static_suffix}${zlib_debug_suffix})
+        EXPORT_NAME ZLIBSTATIC
+        OUTPUT_NAME z${zlib_static_suffix})
 endif(ZLIB_BUILD_STATIC)
 
 if(ZLIB_INSTALL_LIBRARIES)
