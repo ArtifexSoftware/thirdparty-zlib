@@ -93,7 +93,7 @@ if(ZLIB_BUILD_SHARED)
         ${ZLIB_DLL_SRCS}
         ${ZLIB_PUBLIC_HDRS}
         ${ZLIB_PRIVATE_HDRS}
-        $<$<BOOL:${WIN32}>:win32/zlib1.rc>)
+        $<$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>>:win32/zlib1.rc>)
     target_include_directories(zlib PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
         $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>)
