@@ -94,6 +94,7 @@ if(ZLIB_BUILD_SHARED)
         ${ZLIB_PUBLIC_HDRS}
         ${ZLIB_PRIVATE_HDRS}
         $<$<OR:$<BOOL:${WIN32}>,$<BOOL:${CYGWIN}>>:win32/zlib1.rc>)
+    add_library(ZLIB::ZLIB ALIAS zlib)
     target_include_directories(zlib PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
         $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
@@ -113,6 +114,7 @@ if(ZLIB_BUILD_SHARED)
     # the DLL comes from the resource file win32/zlib1.rc
     set_target_properties(zlib PROPERTIES
         DEFINE_SYMBOL ZLIB_DLL
+        EXPORT_NAME ZLIB
         OUTPUT_NAME z
         SOVERSION 1
         $<$<BOOL:NOT:$CYGWIN}>:VERSION ${zlib_VERSION}>)
@@ -128,6 +130,7 @@ if(ZLIB_BUILD_STATIC)
         ${ZLIB_SRCS}
         ${ZLIB_PUBLIC_HDRS}
         ${ZLIB_PRIVATE_HDRS})
+    add_library(ZLIB::ZLIBSTATIC ALIAS zlibstatic)
     target_include_directories(zlibstatic PUBLIC
         $<BUILD_INTERFACE:${zlib_BINARY_DIR}>
         $<BUILD_INTERFACE:${zlib_SOURCE_DIR}>
@@ -193,20 +196,20 @@ endif(ZLIB_INSTALL_LIBRARIES)
 if(ZLIB_BUILD_TESTING)
     enable_testing()
     add_executable(zlib_example test/example.c)
-    target_link_libraries(zlib_example zlib)
+    target_link_libraries(zlib_example ZLIB::ZLIB)
     add_test(zlib_example zlib_example)
 
     add_executable(minigzip test/minigzip.c)
-    target_link_libraries(minigzip zlib)
+    target_link_libraries(minigzip ZLIB::ZLIB)
 
     if(HAVE_OFF64_T)
         add_executable(zlib_example64 test/example.c)
         target_compile_definitions(zlib_example64 PRIVATE LARGEFILE64_SOURCE=1)
-        target_link_libraries(zlib_example64 zlib)
+        target_link_libraries(zlib_example64 ZLIB::ZLIB)
         add_test(zlib_example64 zlib_example64)
 
         add_executable(minigzip64 test/minigzip.c)
         target_compile_definitions(minigzip64 PRIVATE LARGEFILE64_SOURCE=1)
-        target_link_libraries(minigzip64 zlib)
+        target_link_libraries(minigzip64 ZLIB::ZLIB)
     endif(HAVE_OFF64_T)
 endif(ZLIB_BUILD_TESTING)
