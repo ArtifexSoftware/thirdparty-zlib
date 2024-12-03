@@ -211,11 +211,11 @@ if(ZLIB_INSTALL_LIBRARIES)
 
     install(FILES ${ZLIB_PUBLIC_HDRS}
             COMPONENT Development
-            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
-        FILES zlib.3
+            DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+    install(FILES zlib.3
             COMPONENT Development
-            DESTINATION "${CMAKE_INSTALL_MANDIR}/man3"
-        FILES ${ZLIB_PC}
+            DESTINATION "${CMAKE_INSTALL_MANDIR}/man3")
+    install(FILES ${ZLIB_PC}
             COMPONENT Development
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
 endif(ZLIB_INSTALL_LIBRARIES)
