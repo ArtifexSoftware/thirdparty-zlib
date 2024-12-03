@@ -242,4 +242,6 @@ if(ZLIB_BUILD_TESTING)
         target_compile_definitions(minigzip64 PRIVATE LARGEFILE64_SOURCE=1)
         target_link_libraries(minigzip64 ZLIB::ZLIB)
     endif(HAVE_OFF64_T)
+
+    add_subdirectory(test)
 endif(ZLIB_BUILD_TESTING)
