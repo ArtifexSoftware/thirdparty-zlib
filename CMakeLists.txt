@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.9)
 
 project(zlib
     LANGUAGES C
@@ -12,6 +12,13 @@ option(ZLIB_INSTALL_LIBRARIES "Enable installation of zlib" ON)
 if(WIN32)
     option(ZLIB_INSTALL_COMPAT_DLL "Install a copy as zlib1.dll" ON)
 endif(WIN32)
+
+get_property(IS_MULTI GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
+if(NOT DEFINED CMAKE_BUILD_TYPE AND NOT IS_MULTI)
+    message(STATUS "No CMAKE_BUILD_TYPE set -- using Release")
+    set(CMAKE_BUILD_TYPE Release)
+endif(NOT DEFINED CMAKE_BUILD_TYPE AND NOT IS_MULTI)
 
 include(CheckTypeSize)
 include(CheckFunctionExists)
