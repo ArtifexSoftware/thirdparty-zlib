@@ -32,6 +32,8 @@ add_test(NAME zlib_test_configure_find_package
         ${PLATFORM}
         -B${CMAKE_CURRENT_BINARY_DIR}/findpackage_test_build
         -DCMAKE_BUILD_TYPE=$<CONFIG>
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
         -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
         -DZDIR=${CMAKE_CURRENT_BINARY_DIR}/test_install/${CMAKE_INSTALL_LIBDIR}
         --fresh
@@ -69,6 +71,8 @@ add_test(NAME zlib_test_configure_add_subdirectory
     ${PLATFORM}
     -B${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_test_build
     -DCMAKE_BUILD_TYPE=$<CONFIG>
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
     --fresh
     -G "${CMAKE_GENERATOR}"
@@ -101,6 +105,8 @@ add_test(NAME zlib_test_configure_add_subdirectory_exclude
     ${PLATFORM}
     -B${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_exclude_test_build
     -DCMAKE_BUILD_TYPE=$<CONFIG>
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
     -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
     --fresh
     -G "${CMAKE_GENERATOR}"
