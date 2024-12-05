@@ -186,6 +186,13 @@ if(ZLIB_INSTALL_LIBRARIES)
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        if(ZLIB_INSTALL_COMPAT_DLL AND MINGW)
+            install(FILES  $<TARGET_FILE:zlibstatic>
+                COMPONENT Development
+                RENAME libz.dll.a
+                DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        endif(ZLIB_INSTALL_COMPAT_DLL)
+
     endif(ZLIB_BUILD_STATIC)
 
     configure_package_config_file(${zlib_SOURCE_DIR}/zlibConfig.cmake.in
