@@ -113,19 +113,18 @@ if(ZLIB_BUILD_SHARED)
             $<$<BOOL:NOT:${HAVE_FSEEKO}>:NO_FSEEKO>
             $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_DEPRECATE>
             $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>)
-    # The VERSION property causes shared libraries on Linux to have the full version
-    # encoded into their final filename.  We disable this on Cygwin because
-    # it causes cygz-${ZLIB_FULL_VERSION}.dll to be created when cygz.dll
-    # seems to be the default.
-    #
-    # This has no effect with MSVC, on that platform the version info for
-    # the DLL comes from the resource file win32/zlib1.rc
+    set(INSTALL_VERSION ${zlib_VERSION_MAJOR})
+
+    if(NOT CYGWIN)
+        set_target_properties(zlib PROPERTIES
+            SOVERSION ${zlib_VERSION_MAJOR}
+            VERSION ${INSTALL_VERSION})
+    endif(NOT CYGWIN)
+
     set_target_properties(zlib PROPERTIES
         DEFINE_SYMBOL ZLIB_DLL
         EXPORT_NAME ZLIB
-        OUTPUT_NAME z
-        SOVERSION 1
-        $<$<BOOL:NOT:$CYGWIN}>:VERSION ${zlib_VERSION}>)
+        OUTPUT_NAME z)
     if(UNIX AND NOT APPLE AND NOT(CMAKE_SYSTEM_NAME STREQUAL AIX))
         # On unix-like platforms the library is almost always called libz
         set_target_properties(zlib PROPERTIES
