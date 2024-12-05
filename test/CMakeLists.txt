@@ -18,22 +18,29 @@ configure_file(
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/add_subdirectory_exclude_test.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_exclude_test/CMakeLists.txt)
 
+# CMAKE_GENERATOR_PLATFORM doesn't work in the if
+set(GENERATOR ${CMAKE_GENERATOR_PLATFORM})
+
+if(GENERATOR)
+    set(PLATFORM "-A ${GENERATOR}")
+endif(GENERATOR)
 #
 # findpackage_test
 #
 add_test(NAME zlib_test_configure_find_package
-   COMMAND ${CMAKE_COMMAND}
-       -B${CMAKE_CURRENT_BINARY_DIR}/findpackage_test_build
-       -DCMAKE_BUILD_TYPE=$<CONFIG>
-       -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
-       -DZDIR=${CMAKE_CURRENT_BINARY_DIR}/test_install/${CMAKE_INSTALL_LIBDIR}
-       --fresh
-       -G "${CMAKE_GENERATOR}"
-       -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
+    COMMAND ${CMAKE_COMMAND}
+        ${PLATFORM}
+        -B${CMAKE_CURRENT_BINARY_DIR}/findpackage_test_build
+        -DCMAKE_BUILD_TYPE=$<CONFIG>
+        -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
+        -DZDIR=${CMAKE_CURRENT_BINARY_DIR}/test_install/${CMAKE_INSTALL_LIBDIR}
+        --fresh
+        -G "${CMAKE_GENERATOR}"
+        -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
 
 add_test(NAME zlib_test_build_find_package
-    COMMAND ${CMAKE_COMMAND} --build
-            ${CMAKE_CURRENT_BINARY_DIR}/findpackage_test_build
+    COMMAND ${CMAKE_COMMAND} --build .
+    --config $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/findpackage_test_build)
 
 add_test(NAME zlib_test_test_find_package
@@ -58,22 +65,23 @@ set_tests_properties(zlib_test_test_find_package PROPERTIES
 # add_subdirectory_test
 #
 add_test(NAME zlib_test_configure_add_subdirectory
-   COMMAND ${CMAKE_COMMAND}
-       -B${CMAKE_CURRENT_BINARY_DIR}/add_subdirectoy_test_build
-       -DCMAKE_BUILD_TYPE=$<CONFIG>
-       -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
-       --fresh
-       -G "${CMAKE_GENERATOR}"
-       -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
+    COMMAND ${CMAKE_COMMAND}
+    ${PLATFORM}
+    -B${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_test_build
+    -DCMAKE_BUILD_TYPE=$<CONFIG>
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
+    --fresh
+    -G "${CMAKE_GENERATOR}"
+    -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
 
 add_test(NAME zlib_test_build_add_subdirectory
-    COMMAND ${CMAKE_COMMAND} --build
-            ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectoy_test_build
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectoy_test_build)
+    COMMAND ${CMAKE_COMMAND} --build .
+    --config $<CONFIG>
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_test_build)
 
 add_test(NAME zlib_test_test_add_subdirectory
     COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG>
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectoy_test_build)
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_test_build)
 
 set_tests_properties(zlib_test_configure_add_subdirectory PROPERTIES
     FIXTURES_SETUP as_config)
@@ -89,22 +97,23 @@ set_tests_properties(zlib_test_test_add_subdirectory PROPERTIES
 # add_subdirectory_exclude_test
 #
 add_test(NAME zlib_test_configure_add_subdirectory_exclude
-   COMMAND ${CMAKE_COMMAND}
-       -B${CMAKE_CURRENT_BINARY_DIR}/add_subdirectoy_exclude_test_build
-       -DCMAKE_BUILD_TYPE=$<CONFIG>
-       -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
-       --fresh
-       -G "${CMAKE_GENERATOR}"
-       -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
+    COMMAND ${CMAKE_COMMAND}
+    ${PLATFORM}
+    -B${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_exclude_test_build
+    -DCMAKE_BUILD_TYPE=$<CONFIG>
+    -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
+    --fresh
+    -G "${CMAKE_GENERATOR}"
+    -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
 
 add_test(NAME zlib_test_build_add_subdirectory_exclude
-    COMMAND ${CMAKE_COMMAND} --build
-            ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectoy_exclude_test_build
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectoy_exclude_test_build)
+    COMMAND ${CMAKE_COMMAND} --build .
+    --config $<CONFIG>
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_exclude_test_build)
 
 add_test(NAME zlib_test_test_add_subdirectory_exclude
     COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG>
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectoy_exclude_test_build)
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_exclude_test_build)
 
 set_tests_properties(zlib_test_configure_add_subdirectory_exclude PROPERTIES
     FIXTURES_SETUP asx_config)
