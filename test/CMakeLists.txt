@@ -61,7 +61,8 @@ set_tests_properties(zlib_test_build_find_package PROPERTIES
     FIXTURES_SETUP fp_build)
 
 set_tests_properties(zlib_test_test_find_package PROPERTIES
-    FIXTURES_REQUIRED fp_build)
+    FIXTURES_REQUIRED fp_build
+    ENVIRONMENT CTEST_OUTPUT_ON_FAILURE=1)
 
 #
 # add_subdirectory_test
@@ -95,7 +96,8 @@ set_tests_properties(zlib_test_build_add_subdirectory PROPERTIES
     FIXTURES_SETUP as_build)
 
 set_tests_properties(zlib_test_test_add_subdirectory PROPERTIES
-    FIXTURES_REQUIRED as_build)
+    FIXTURES_REQUIRED as_build
+    ENVIRONMENT CTEST_OUTPUT_ON_FAILURE=1)
 
 #
 # add_subdirectory_exclude_test
@@ -129,4 +131,5 @@ set_tests_properties(zlib_test_build_add_subdirectory_exclude PROPERTIES
     FIXTURES_SETUP asx_build)
 
 set_tests_properties(zlib_test_test_add_subdirectory_exclude PROPERTIES
-    FIXTURES_REQUIRED asx_build)
+    FIXTURES_REQUIRED asx_build
+    ENVIRONMENT CTEST_OUTPUT_ON_FAILURE=1)

@@ -191,7 +191,7 @@ if(ZLIB_INSTALL_LIBRARIES)
                 COMPONENT Development
                 RENAME libz.dll.a
                 DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-        endif(ZLIB_INSTALL_COMPAT_DLL)
+        endif(ZLIB_INSTALL_COMPAT_DLL AND MINGW)
 
     endif(ZLIB_BUILD_STATIC)
 
