@@ -8,6 +8,10 @@ option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Enable building zlib static library" ON)
 option(ZLIB_INSTALL_LIBRARIES "Enable installation of zlib" ON)
+option(ZLIB_PREFIX
+    "prefix for all types and library functions, see zconf.h.in"
+    OFF)
+mark_as_advanced(ZLIB_PREFIX)
 
 if(WIN32)
     option(ZLIB_INSTALL_COMPAT_DLL "Install a copy as zlib1.dll" ON)
