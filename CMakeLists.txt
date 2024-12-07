@@ -31,6 +31,30 @@ include(CheckCSourceCompiles)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
+if(NOT ZLIB_CONF_WRITTEN)
+    set(Z_PREFIX ${ZLIB_PREFIX})
+    set(CONF_OUT_FILE ${zlib_BINARY_DIR}/zconf.h.cmakein)
+    file(READ ${zlib_SOURCE_DIR}/zconf.h.in ZCONF_CONTENT LIMIT 245)
+    file(WRITE ${CONF_OUT_FILE} ${ZCONF_CONTENT})
+    file(APPEND ${CONF_OUT_FILE} "#cmakedefine01 Z_PREFIX\n")
+    file(APPEND ${CONF_OUT_FILE} "#cmakedefine01 HAVE_STDARG_H\n")
+    file(APPEND ${CONF_OUT_FILE} "#cmakedefine01 HAVE_UNISTD_H\n")
+    file(READ ${zlib_SOURCE_DIR}/zconf.h.in ZCONF_CONTENT OFFSET 244)
+    set(FIRST_ITEM TRUE)
+
+    foreach(item IN LISTS ZCONF_CONTENT)
+        if(FIRST_ITEM)
+            string(APPEND OUT_CONTENT ${item})
+            set(FIRST_ITEM FALSE)
+        else(FIRST_ITEM)
+            string(APPEND OUT_CONTENT "\;" ${item})
+        endif(FIRST_ITEM)
+    endforeach(item IN LISTS ${ZCONF_CONTENT})
+
+    file(APPEND ${CONF_OUT_FILE} ${OUT_CONTENT})
+    set(ZLIB_CONF_WRITTEN TRUE CACHE BOOL "zconf.h.cmakein was created")
+    mark_as_advanced(ZLIB_CONF_WRITTEN)
+endif(NOT ZLIB_CONF_WRITTEN)
 #
 # Check to see if we have large file support
 #
@@ -44,15 +68,30 @@ set(CMAKE_REQUIRED_DEFINITIONS) # clear variable
 check_function_exists(fseeko HAVE_FSEEKO)
 
 #
+# Check for stdarg.h
+#
+check_include_file(stdarg.h HAVE_STDARG_H)
+
+#
 # Check for unistd.h
 #
-check_include_file(unistd.h Z_HAVE_UNISTD_H)
+check_include_file(unistd.h HAVE_UNISTD_H)
+
+#
+# Check visibility attribute is supported
+check_c_source_compiles(
+    "
+        #include <stdlib.h>
+        static void f(void) __attribute__ ((visibility(\"hidden\")));
+        int main(void) {return 0;}
+    "
+    HAVE___ATTR__VIS_HIDDEN)
 
 set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
 configure_file(${zlib_SOURCE_DIR}/zlib.pc.cmakein
                ${ZLIB_PC} @ONLY)
-configure_file(${zlib_SOURCE_DIR}/zconf.h.cmakein
-               ${zlib_BINARY_DIR}/zconf.h @ONLY)
+configure_file(${zlib_BINARY_DIR}/zconf.h.cmakein
+               ${zlib_BINARY_DIR}/zconf.h)
 include_directories(${zlib_BINARY_DIR} ${zlib_SOURCE_DIR})
 
 #============================================================================
@@ -113,10 +152,12 @@ if(ZLIB_BUILD_SHARED)
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
     target_compile_definitions(zlib
         PRIVATE
-            $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>
             $<$<BOOL:NOT:${HAVE_FSEEKO}>:NO_FSEEKO>
+            $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>
             $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_DEPRECATE>
-            $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>)
+            $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>
+        PUBLIC
+            $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>)
     set(INSTALL_VERSION ${zlib_VERSION_MAJOR})
 
     if(NOT CYGWIN)
@@ -149,6 +190,7 @@ if(ZLIB_BUILD_STATIC)
     target_compile_definitions(zlibstatic
         PRIVATE
             $<$<BOOL:NOT:${HAVE_FSEEKO}>:NO_FSEEKO>
+            $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>
             $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_DEPRECATE>
             $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>
         PUBLIC
@@ -242,23 +284,28 @@ if(ZLIB_BUILD_TESTING)
         add_test(zlib_example zlib_example)
 
         add_executable(minigzip test/minigzip.c)
+        target_compile_definitions(zlib
+            PRIVATE
+                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
         target_link_libraries(minigzip ZLIB::ZLIB)
 
         if(HAVE_OFF64_T)
             add_executable(zlib_example64 test/example.c)
-            target_compile_definitions(zlib_example64 PRIVATE LARGEFILE64_SOURCE=1)
+            target_compile_definitions(zlib_example64
+                PRIVATE
+                    LARGEFILE64_SOURCE=1
+                    $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
             target_link_libraries(zlib_example64 ZLIB::ZLIB)
             add_test(zlib_example64 zlib_example64)
-
-            add_executable(minigzip64 test/minigzip.c)
-            target_compile_definitions(minigzip64 PRIVATE LARGEFILE64_SOURCE=1)
-            target_link_libraries(minigzip64 ZLIB::ZLIB)
         endif(HAVE_OFF64_T)
     endif(ZLIB_BUILD_SHARED)
 
     if(ZLIB_BUILD_STATIC)
         add_executable(zlib_static_example test/example.c)
         target_link_libraries(zlib_static_example ZLIB::ZLIBSTATIC)
+        target_compile_definitions(zlib_static_example
+            PRIVATE
+                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
         add_test(zlib_static_example zlib_static_example)
 
         add_executable(static_minigzip test/minigzip.c)
@@ -266,13 +313,12 @@ if(ZLIB_BUILD_TESTING)
 
         if(HAVE_OFF64_T)
             add_executable(zlib_static_example64 test/example.c)
-            target_compile_definitions(zlib_static_example64 PRIVATE LARGEFILE64_SOURCE=1)
+            target_compile_definitions(zlib_static_example64
+                PRIVATE
+                    LARGEFILE64_SOURCE=1
+                    $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
             target_link_libraries(zlib_static_example64 ZLIB::ZLIBSTATIC)
             add_test(zlib_static_example64 zlib_static_example64)
-
-            add_executable(static_minigzip64 test/minigzip.c)
-            target_compile_definitions(static_minigzip64 PRIVATE LARGEFILE64_SOURCE=1)
-            target_link_libraries(static_minigzip64 ZLIB::ZLIBSTATIC)
         endif(HAVE_OFF64_T)
     endif(ZLIB_BUILD_STATIC)
 
