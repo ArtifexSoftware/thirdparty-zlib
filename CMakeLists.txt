@@ -80,6 +80,13 @@ check_include_file(unistd.h HAVE_UNISTD_H)
 
 #
 # Check visibility attribute is supported
+#
+if(MSVC)
+    set(CMAKE_REQUIRED_FLAGS "-WX")
+else(MSVC)
+    set(CMAKE_REQUIRED_FLAGS "-WError")
+endif(MSVC)
+
 check_c_source_compiles(
     "
         #include <stdlib.h>
