@@ -1,4 +1,4 @@
-add_test(NAME zlib_test_install
+add_test(NAME zlib_install
     COMMAND ${CMAKE_COMMAND} --install ${zlib_BINARY_DIR}
         --prefix ${CMAKE_CURRENT_BINARY_DIR}/test_install
         --config $<CONFIG>
@@ -27,7 +27,7 @@ endif(GENERATOR)
 #
 # findpackage_test
 #
-add_test(NAME zlib_test_configure_find_package
+add_test(NAME zlib_configure_find_package
     COMMAND ${CMAKE_COMMAND}
         ${PLATFORM}
         -B${CMAKE_CURRENT_BINARY_DIR}/findpackage_test_build
@@ -40,12 +40,12 @@ add_test(NAME zlib_test_configure_find_package
         -G "${CMAKE_GENERATOR}"
         -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
 
-add_test(NAME zlib_test_build_find_package
+add_test(NAME zlib_build_find_package
     COMMAND ${CMAKE_COMMAND} --build .
     --config $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/findpackage_test_build)
 
-add_test(NAME zlib_test_test_find_package
+add_test(NAME zlib_test_find_package
     COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/findpackage_test_build)
 
@@ -67,7 +67,7 @@ set_tests_properties(zlib_test_test_find_package PROPERTIES
 #
 # add_subdirectory_test
 #
-add_test(NAME zlib_test_configure_add_subdirectory
+add_test(NAME zlib_configure_add_subdirectory
     COMMAND ${CMAKE_COMMAND}
     ${PLATFORM}
     -B${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_test_build
@@ -79,12 +79,12 @@ add_test(NAME zlib_test_configure_add_subdirectory
     -G "${CMAKE_GENERATOR}"
     -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
 
-add_test(NAME zlib_test_build_add_subdirectory
+add_test(NAME zlib_build_add_subdirectory
     COMMAND ${CMAKE_COMMAND} --build .
     --config $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_test_build)
 
-add_test(NAME zlib_test_test_add_subdirectory
+add_test(NAME zlib_test_add_subdirectory
     COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_test_build)
 
@@ -102,7 +102,7 @@ set_tests_properties(zlib_test_test_add_subdirectory PROPERTIES
 #
 # add_subdirectory_exclude_test
 #
-add_test(NAME zlib_test_configure_add_subdirectory_exclude
+add_test(NAME zlib_configure_add_subdirectory_exclude
     COMMAND ${CMAKE_COMMAND}
     ${PLATFORM}
     -B${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_exclude_test_build
@@ -114,12 +114,12 @@ add_test(NAME zlib_test_configure_add_subdirectory_exclude
     -G "${CMAKE_GENERATOR}"
     -S${CMAKE_CURRENT_BINARY_DIR}/findpackage_test)
 
-add_test(NAME zlib_test_build_add_subdirectory_exclude
+add_test(NAME zlib_build_add_subdirectory_exclude
     COMMAND ${CMAKE_COMMAND} --build .
     --config $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_exclude_test_build)
 
-add_test(NAME zlib_test_test_add_subdirectory_exclude
+add_test(NAME zlib_test_add_subdirectory_exclude
     COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG>
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/add_subdirectory_exclude_test_build)
 
