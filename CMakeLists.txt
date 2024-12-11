@@ -167,7 +167,7 @@ if(ZLIB_BUILD_SHARED)
             $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>
         PUBLIC
             $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>)
-    set(INSTALL_VERSION ${zlib_VERSION_MAJOR})
+    set(INSTALL_VERSION ${zlib_VERSION})
 
     if(NOT CYGWIN)
         set_target_properties(zlib PROPERTIES
