@@ -55,12 +55,13 @@ if(NOT ZLIB_CONF_WRITTEN)
     set(ZLIB_CONF_WRITTEN TRUE CACHE BOOL "zconf.h.cmakein was created")
     mark_as_advanced(ZLIB_CONF_WRITTEN)
 endif(NOT ZLIB_CONF_WRITTEN)
+
 #
 # Check to see if we have large file support
 #
 set(CMAKE_REQUIRED_DEFINITIONS -D_LARGEFILE64_SOURCE=1)
 check_type_size(off64_t OFF64_T)
-set(CMAKE_REQUIRED_DEFINITIONS) # clear variable
+unset(CMAKE_REQUIRED_DEFINITIONS) # clear variable
 
 #
 # Check for fseeko
@@ -87,6 +88,7 @@ check_c_source_compiles(
     "
     HAVE___ATTR__VIS_HIDDEN)
 
+unset(CMAKE_COMPILE_FLAGS)
 set(ZLIB_PC ${zlib_BINARY_DIR}/zlib.pc)
 configure_file(${zlib_SOURCE_DIR}/zlib.pc.cmakein
                ${ZLIB_PC} @ONLY)
