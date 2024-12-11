@@ -203,7 +203,7 @@ if(ZLIB_BUILD_STATIC)
             $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_DEPRECATE>
             $<$<BOOL:${MSVC}>:_CRT_NONSTDC_NO_DEPRECATE>
         PUBLIC
-            $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>)
+            $<$<BOOL:${HAVE_OFF64_T}>:LARGEFILE64_SOURCE=1>)
     set_target_properties(zlibstatic PROPERTIES
         EXPORT_NAME ZLIBSTATIC
         OUTPUT_NAME z${zlib_static_suffix})
