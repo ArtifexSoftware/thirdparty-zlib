@@ -2,5 +2,5 @@ set(minizip_VERSION @minizip_VERSION@)
 set(MINIZIP_ENABLE_BZIP2 @MINIZIP_ENABLE_BZIP2@)
 @PACKAGE_INIT@
 include(CMakeFindDependencyMacro)
-find_dependency(zlib)
+find_dependency(ZLIB)
 INCLUDE (${CMAKE_CURRENT_LIST_DIR}/minizip.cmake)

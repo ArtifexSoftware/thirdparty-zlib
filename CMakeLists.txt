@@ -252,22 +252,22 @@ if(ZLIB_INSTALL_LIBRARIES)
     endif(ZLIB_BUILD_STATIC)
 
     configure_package_config_file(${zlib_SOURCE_DIR}/zlibConfig.cmake.in
-        ${zlib_BINARY_DIR}/zlibConfig.cmake
+        ${zlib_BINARY_DIR}/ZLIBConfig.cmake
         INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib
         NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 
     write_basic_package_version_file(
-        "${zlib_BINARY_DIR}/zlibConfigVersion.cmake"
+        "${zlib_BINARY_DIR}/ZLIBConfigVersion.cmake"
         VERSION "${zlib_VERSION}"
         COMPATIBILITY AnyNewerVersion)
 
     install(FILES
-        ${zlib_BINARY_DIR}/zlibConfig.cmake
-        ${zlib_BINARY_DIR}/zlibConfigVersion.cmake
+        ${zlib_BINARY_DIR}/ZLIBConfig.cmake
+        ${zlib_BINARY_DIR}/ZLIBConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
 
     install(EXPORT zlibExport
-        FILE zlib.cmake
+        FILE ZLIB.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib
         NAMESPACE ZLIB::)
 
