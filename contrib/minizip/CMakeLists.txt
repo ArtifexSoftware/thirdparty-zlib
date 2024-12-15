@@ -76,6 +76,7 @@ set(LIBMINIZIP_SRCS
 
 set(LIBMINIZIP_HDRS
     crypt.h
+    ints.h
     ioapi.h
     mztools.h
     unzip.h
