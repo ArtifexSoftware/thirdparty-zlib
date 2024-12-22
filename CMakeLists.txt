@@ -287,55 +287,6 @@ endif(ZLIB_INSTALL_LIBRARIES)
 #============================================================================
 if(ZLIB_BUILD_TESTING)
     enable_testing()
-
-    if(ZLIB_BUILD_SHARED)
-        add_executable(zlib_example test/example.c)
-        target_link_libraries(zlib_example ZLIB::ZLIB)
-        add_test(NAME zlib_example
-            COMMAND zlib_example)
-
-        add_executable(minigzip test/minigzip.c)
-        target_compile_definitions(zlib
-            PRIVATE
-                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
-        target_link_libraries(minigzip ZLIB::ZLIB)
-
-        if(HAVE_OFF64_T)
-            add_executable(zlib_example64 test/example.c)
-            target_compile_definitions(zlib_example64
-                PRIVATE
-                    LARGEFILE64_SOURCE=1
-                    $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
-            target_link_libraries(zlib_example64 ZLIB::ZLIB)
-            add_test(NAME zlib_example64
-                COMMAND zlib_example64)
-        endif(HAVE_OFF64_T)
-    endif(ZLIB_BUILD_SHARED)
-
-    if(ZLIB_BUILD_STATIC)
-        add_executable(zlib_static_example test/example.c)
-        target_link_libraries(zlib_static_example ZLIB::ZLIBSTATIC)
-        target_compile_definitions(zlib_static_example
-            PRIVATE
-                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
-        add_test(NAME zlib_static_example
-            COMMAND zlib_static_example)
-
-        add_executable(static_minigzip test/minigzip.c)
-        target_link_libraries(static_minigzip ZLIB::ZLIBSTATIC)
-
-        if(HAVE_OFF64_T)
-            add_executable(zlib_static_example64 test/example.c)
-            target_compile_definitions(zlib_static_example64
-                PRIVATE
-                    LARGEFILE64_SOURCE=1
-                    $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
-            target_link_libraries(zlib_static_example64 ZLIB::ZLIBSTATIC)
-            add_test(NAME zlib_static_example64
-                COMMAND zlib_static_example64)
-        endif(HAVE_OFF64_T)
-    endif(ZLIB_BUILD_STATIC)
-
     add_subdirectory(test)
 endif(ZLIB_BUILD_TESTING)
 

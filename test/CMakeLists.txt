@@ -1,3 +1,76 @@
+function (ZLIB_findTestEnv testName)
+        set (testEnv "PATH=")
+
+        if (MSVC OR MINGW)
+                set (separator "\\\;")
+        else()
+                set (separator ":")
+        endif()
+
+        string (APPEND testEnv "$<TARGET_FILE_DIR:ZLIB::ZLIB>${separator}")
+        string (APPEND testEnv "$ENV{PATH}")
+
+        set_tests_properties (${testName} PROPERTIES
+                ENVIRONMENT "${testEnv}"
+        )
+endfunction()
+
+if(ZLIB_BUILD_SHARED)
+    add_executable(zlib_example example.c)
+    target_link_libraries(zlib_example ZLIB::ZLIB)
+    add_test(NAME zlib_example
+        COMMAND zlib_example)
+
+    add_executable(minigzip minigzip.c)
+    target_compile_definitions(zlib
+        PRIVATE
+            $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
+    target_link_libraries(minigzip ZLIB::ZLIB)
+
+    if (MSVC OR MSYS OR MINGW OR CYGWIN)
+        ZLIB_findTestEnv (zlib_example)
+    endif (MSVC OR MSYS OR MINGW OR CYGWIN)
+
+    if(HAVE_OFF64_T)
+        add_executable(zlib_example64 example.c)
+        target_compile_definitions(zlib_example64
+            PRIVATE
+                LARGEFILE64_SOURCE=1
+                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
+        target_link_libraries(zlib_example64 ZLIB::ZLIB)
+        add_test(NAME zlib_example64
+            COMMAND zlib_example64)
+
+        if (MSVC OR MSYS OR MINGW OR CYGWIN)
+            ZLIB_findTestEnv (zlib_example64)
+        endif (MSVC OR MSYS OR MINGW OR CYGWIN)
+    endif(HAVE_OFF64_T)
+endif(ZLIB_BUILD_SHARED)
+
+if(ZLIB_BUILD_STATIC)
+    add_executable(zlib_static_example example.c)
+    target_link_libraries(zlib_static_example ZLIB::ZLIBSTATIC)
+    target_compile_definitions(zlib_static_example
+        PRIVATE
+            $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
+    add_test(NAME zlib_static_example
+        COMMAND zlib_static_example)
+
+    add_executable(static_minigzip minigzip.c)
+    target_link_libraries(static_minigzip ZLIB::ZLIBSTATIC)
+
+    if(HAVE_OFF64_T)
+        add_executable(zlib_static_example64 example.c)
+        target_compile_definitions(zlib_static_example64
+            PRIVATE
+                LARGEFILE64_SOURCE=1
+                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
+        target_link_libraries(zlib_static_example64 ZLIB::ZLIBSTATIC)
+        add_test(NAME zlib_static_example64
+            COMMAND zlib_static_example64)
+    endif(HAVE_OFF64_T)
+endif(ZLIB_BUILD_STATIC)
+
 add_test(NAME zlib_install
     COMMAND ${CMAKE_COMMAND} --install ${zlib_BINARY_DIR}
         --prefix ${CMAKE_CURRENT_BINARY_DIR}/test_install
