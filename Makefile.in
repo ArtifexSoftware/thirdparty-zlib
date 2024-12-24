@@ -113,15 +113,15 @@ test64: all64
 	@rm -f tmp64_$$
 
 infcover.o: $(SRCDIR)test/infcover.c $(SRCDIR)zlib.h zconf.h
-	$(CC) $(CFLAGS) $(ZINCOUT) -c -o $@ $(SRCDIR)test/infcover.c
+	$(CC) $(CFLAGS) $(ZINCOUT) -c -coverage -o $@ $(SRCDIR)test/infcover.c
 
 infcover: infcover.o libz.a
-	$(CC) $(CFLAGS) -o $@ infcover.o libz.a
+	$(CC) $(CFLAGS) -coverage -o $@ infcover.o libz.a
 
 cover: infcover
 	rm -f *.gcda
 	${QEMU_RUN} ./infcover
-	gcov inf*.c
+	gcov inf*.c -o ./infcover.gcda
 
 libz.a: $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
