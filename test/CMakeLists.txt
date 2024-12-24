@@ -22,7 +22,7 @@ if(ZLIB_BUILD_SHARED)
         COMMAND zlib_example)
 
     add_executable(minigzip minigzip.c)
-    target_compile_definitions(zlib
+    target_compile_definitions(minigzip
         PRIVATE
             $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
     target_link_libraries(minigzip ZLIB::ZLIB)
