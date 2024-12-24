@@ -59,6 +59,41 @@ if(ZLIB_BUILD_STATIC)
     add_executable(static_minigzip minigzip.c)
     target_link_libraries(static_minigzip ZLIB::ZLIBSTATIC)
 
+    if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR
+        ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+        if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+            find_program(GCOV_EXECUTABLE gcov)
+        endif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
+
+        if(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+            set(llvm_names llvm_cov)
+
+            foreach(ver RANGE 11 99)
+              list(APPEND llvm_names llvm-cov-${ver})
+            endforeach(ver RANGE 11 99)
+
+            find_program(GCOV_EXECUTABLE NAMES ${llvm_names})
+            set(llvm_option "gcov")
+        endif(${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+
+        add_executable(infcover infcover.c)
+        target_link_libraries(infcover ZLIB::ZLIBSTATIC)
+        target_compile_options(infcover PRIVATE -coverage)
+        target_link_options(infcover PRIVATE -coverage)
+        target_compile_definitions(infcover
+            PRIVATE
+                $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
+            add_test (NAME coverage COMMAND infcover)
+            set (INFCOVER_DIR
+                ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/infcover.dir)
+            add_test (NAME coverage-summary
+                COMMAND ${GCOV_EXECUTABLE} ${llvm_option}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/infcover.c
+                    -o ${INFCOVER_DIR}/infcover.c.gcda)
+            set_tests_properties(coverage-summary PROPERTIES DEPENDS incover)
+    endif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR
+        ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+
     if(HAVE_OFF64_T)
         add_executable(zlib_static_example64 example.c)
         target_compile_definitions(zlib_static_example64
