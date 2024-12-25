@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 project(zlib_find_package_test
     LANGUAGES C
     VERSION ${zlib_VERSION})
 
 enable_testing()
-find_package(zlib ${zlib_VERSION} CONFIG REQUIRED)
+find_package(ZLIB ${zlib_VERSION} CONFIG REQUIRED)
 
 if(${ZLIB_BUILD_SHARED})
     add_executable(test_example ${zlib_SOURCE_DIR}/test/example.c)
