@@ -61,6 +61,9 @@ if(ZLIB_BUILD_STATIC)
 
     if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR
         ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
+        set(CFLAGS_OLD ${CMAKE_C_FLAGS})
+        set({CMAKE_C_FLAGS "" CACHE STRING "" FORCE)
+
         if(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
             find_program(GCOV_EXECUTABLE gcov)
         endif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU")
@@ -83,14 +86,15 @@ if(ZLIB_BUILD_STATIC)
         target_compile_definitions(infcover
             PRIVATE
                 $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>)
-            add_test (NAME coverage COMMAND infcover)
-            set (INFCOVER_DIR
-                ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/infcover.dir)
-            add_test (NAME coverage-summary
-                COMMAND ${GCOV_EXECUTABLE} ${llvm_option}
-                    ${CMAKE_CURRENT_SOURCE_DIR}/infcover.c
-                    -o ${INFCOVER_DIR}/infcover.c.gcda)
-            set_tests_properties(coverage-summary PROPERTIES DEPENDS incover)
+        add_test (NAME zlib-coverage COMMAND infcover)
+        set (INFCOVER_DIR
+            ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/infcover.dir)
+        add_test (NAME zlib-coverage-summary
+            COMMAND ${GCOV_EXECUTABLE} ${llvm_option}
+                ${CMAKE_CURRENT_SOURCE_DIR}/infcover.c
+                -o ${INFCOVER_DIR}/infcover.c.gcda)
+        set_tests_properties(zlib-coverage-summary PROPERTIES DEPENDS zlib-coverage)
+        set({CMAKE_C_FLAGS ${CFLAGS_OLD} CACHE  STRING "" FORCE)
     endif(${CMAKE_C_COMPILER_ID} STREQUAL "GNU" OR
         ${CMAKE_C_COMPILER_ID} STREQUAL "Clang")
 
