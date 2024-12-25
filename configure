@@ -87,6 +87,7 @@ zprefix=0
 zconst=0
 build64=0
 gcc=0
+clang=0
 warn=0
 debug=0
 address=0
@@ -185,13 +186,30 @@ else
 fi
 
 case "$cc" in
-  *gcc*) gcc=1 ;;
-  *clang*) gcc=1 ;;
+  *gcc*) gcc=1
+    GCOV="gcov" ;;
+  *clang*) gcc=1
+    clang=1 ;;
 esac
 case `$cc -v 2>&1` in
-  *gcc*) gcc=1 ;;
-  *clang*) gcc=1 ;;
+  *gcc*) gcc=1
+    GCOV="gcov" ;;
+  *clang*) gcc=1
+    clang=1 ;;
 esac
+
+if test "$clang" -eq 1; then
+  clangV=`echo "$cc" | sed -e 's/^.*-//'`
+  if `llvm-cov-${clangV} --version > /dev/null`; then
+    GCOV="llvm-cov-${clangV}"
+    LLVM_GCOV_FLAG="gcov"
+    echo "Using ${GCOV} for coverage"
+  else
+    cover=0
+    LLVM_GCOV_FLAG=""
+    echo "Deactivating cover as no suitable gcov can be found"
+  fi
+fi
 
 show $cc -c $test.c
 if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
@@ -620,7 +638,6 @@ fi
 
 # if code coverage testing was requested, use older gcc if defined, e.g. "gcc-4.2" on Mac OS X
 if test $cover -eq 1; then
-  CFLAGS="${CFLAGS} -fprofile-arcs -ftest-coverage"
   if test -n "$GCC_CLASSIC"; then
     CC=$GCC_CLASSIC
   fi
@@ -872,6 +889,8 @@ echo uname = $uname >> configure.log
 # update Makefile with the configure results
 sed < ${SRCDIR}Makefile.in "
 /^CC *=/s#=.*#=$CC#
+/^GCOV *=/s#=.*#=$GCOV#
+/^LLVM_GCOV_FLAG *=/s#=.*#=$LLVM_GCOV_FLAG#
 /^CFLAGS *=/s#=.*#=$CFLAGS#
 /^SFLAGS *=/s#=.*#=$SFLAGS#
 /^LDFLAGS *=/s#=.*#=$LDFLAGS#

@@ -13,6 +13,8 @@
 #    make install prefix=$HOME
 
 CC=cc
+GCOV=GCOV
+LLVM_GCOV_FLAG=LLMV_GCOV_FLAG
 
 CFLAGS=-O
 #CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
@@ -121,7 +123,7 @@ infcover: infcover.o libz.a
 cover: infcover
 	rm -f *.gcda
 	${QEMU_RUN} ./infcover
-	gcov inf*.c -o ./infcover.gcda
+	${GCOV} ${LLVM_GCOV_FLAG} inf*.c -o ./infcover.gcda
 
 libz.a: $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
