@@ -152,7 +152,7 @@ jobs:
 
     - name: Compile source code with tests (cmake)
       if: matrix.builder == 'cmake'
-      run: cmake --build ./build --config Release
+      run: cmake --build ./build2 --config Release
 
     - name: Run test cases (cmake)
       if: matrix.builder == 'cmake'
