@@ -200,25 +200,27 @@ esac
 
 if test "$clang" -eq 1; then
   if test "$cc" = "clang"; then
-    if `llvm-cov --version > /dev/null`; then
-      GCOV="llvm-cov-${clangV}"
+    if which -s llvm-cov; then
+      GCOV="llvm-cov"
       LLVM_GCOV_FLAG="gcov"
+      GCOV="llvm-cov"
+      LLVM_GCOV_FLAG="gcov"
+      echo "Using ${GCOV} for coverage"
     else
       cover=0
+      GCOV=""
       LLVM_GCOV_FLAG=""
       echo "Deactivating cover as no suitable gcov can be found"
     fi
-    GCOV="llvm-cov"
-    LLVM_GCOV_FLAG="gcov"
-    echo "Using ${GCOV} for coverage"
   else
     clangV=`echo "$cc" | sed -e 's/^.*-//'`
-    if `llvm-cov-${clangV} --version > /dev/null`; then
+    if which -s llvm-cov-${clangV}; then
       GCOV="llvm-cov-${clangV}"
       LLVM_GCOV_FLAG="gcov"
       echo "Using ${GCOV} for coverage"
     else
       cover=0
+      GCOV=""
       LLVM_GCOV_FLAG=""
       echo "Deactivating cover as no suitable gcov can be found"
     fi

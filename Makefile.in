@@ -121,9 +121,13 @@ infcover: infcover.o libz.a
 	$(CC) $(CFLAGS) -coverage -o $@ infcover.o libz.a
 
 cover: infcover
+ifdef $(GCOV)
 	rm -f *.gcda
 	${QEMU_RUN} ./infcover
 	${GCOV} ${LLVM_GCOV_FLAG} inf*.c -o ./infcover.gcda
+else
+	@echo 'cover disabled as no suitable gcov was found'
+endif
 
 libz.a: $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
