@@ -435,7 +435,7 @@ int main(int argc, char *argv[]) {
                      }
                      if( lastslash != NULL )
                      {
-                         savefilenameinzip = lastslash+1; // base filename follows last slash.
+                         savefilenameinzip = lastslash+1; /* base filename follows last slash. */
                      }
                  }
 
