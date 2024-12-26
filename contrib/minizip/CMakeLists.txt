@@ -2,13 +2,26 @@ cmake_minimum_required(VERSION 3.12)
 
 project(minizip
     VERSION 1.0.0
-    LANGUAGES C)
+    LANGUAGES C
+    DESCRIPTION "A library for creating zipfiles based in zlib"
+    HOMEPAGE_URL "https://www.winimage.com/zLibDll/minizip.html")
 
-if(CMAKE_SIZEOF_VOID_P LESS 8)
+if(CMAKE_SIZEOF_VOID_P LESS 8 AND NOT MINGW)
     message(WARNING "libminizip needs 64bit - stopping here")
-    return()
-endif(CMAKE_SIZEOF_VOID_P LESS 8)
+#    return()
+endif(CMAKE_SIZEOF_VOID_P LESS 8 AND NOT MINGW)
 
+#============================================================================
+# CPack
+#============================================================================
+set(CPACK_PACKAGE_VENDOR "zlib-Project")
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${minizip_SOURCE_DIR}/MiniZip64_info.txt)
+set(CPACK_RESOURCE_FILE_LICENSE ${minizip_SOURCE_DIR}/../../LICENSE)
+set(CPACK_RESOURCE_FILE_README ${minizip_SOURCE_DIR}/MiniZip64_info.txt)
+
+#============================================================================
+# configuration
+#============================================================================
 option(MINIZIP_BUILD_SHARED "Enable building zlib shared library" ON)
 option(MINIZIP_BUILD_STATIC "Enable building zlib static library" ON)
 option(MINIZIP_BUILD_TESTING "Enable testing of minizip" ON)
@@ -23,6 +36,7 @@ include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
 include(CMakePackageConfigHelpers)
+include(CPack)
 include(GNUInstallDirs)
 
 if(MINIZIP_ENABLE_BZIP2)

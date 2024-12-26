@@ -2,7 +2,21 @@ cmake_minimum_required(VERSION 3.10)
 
 project(zlib
     LANGUAGES C
-    VERSION 1.3.1.1)
+    VERSION 1.3.1.1
+    HOMEPAGE_URL "https://zlib.net/"
+    DESCRIPTION "a general-purpose lossless data-compression library")
+
+#============================================================================
+# CPack
+#============================================================================
+set(CPACK_PACKAGE_VENDOR "zlib-Project")
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${zlib_SOURCE_DIR}/README)
+set(CPACK_RESOURCE_FILE_LICENSE ${zlib_SOURCE_DIR}/LICENSE)
+set(CPACK_RESOURCE_FILE_README ${zlib_SOURCE_DIR}/README)
+
+#============================================================================
+# configuration
+#============================================================================
 
 option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
@@ -24,12 +38,12 @@ if(NOT DEFINED CMAKE_BUILD_TYPE AND NOT IS_MULTI)
     message(STATUS "No CMAKE_BUILD_TYPE set -- using Release")
     set(CMAKE_BUILD_TYPE Release)
 endif(NOT DEFINED CMAKE_BUILD_TYPE AND NOT IS_MULTI)
-
 include(CheckTypeSize)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
 include(CMakePackageConfigHelpers)
+include(CPack)
 include(GNUInstallDirs)
 
 if(NOT ZLIB_CONF_WRITTEN)
@@ -275,8 +289,18 @@ if(ZLIB_INSTALL_LIBRARIES)
             COMPONENT Development
             DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
     install(FILES zlib.3
-            COMPONENT Development
+            COMPONENT Docs
             DESTINATION "${CMAKE_INSTALL_MANDIR}/man3")
+    install(FILES
+                LICENSE
+                doc/algorithm.txt
+                doc/crc-doc.1.0.pdf
+                doc/rfc1950.txt
+                doc/rfc1951.txt
+                doc/rfc1952.txt
+                doc/txtvsbin.txt
+            COMPONENT Docs
+            DESTINATION "${CMAKE_INSTALL_DOCDIR}/zlib")
     install(FILES ${ZLIB_PC}
             COMPONENT Development
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
