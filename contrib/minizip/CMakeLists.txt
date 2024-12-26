@@ -4,6 +4,11 @@ project(minizip
     VERSION 1.0.0
     LANGUAGES C)
 
+if(CMAKE_SIZEOF_VOID_P LESS 8)
+    message(WARNING "libminizip needs 64bit - stopping here")
+    return()
+endif(CMAKE_SIZEOF_VOID_P LESS 8)
+
 option(MINIZIP_BUILD_SHARED "Enable building zlib shared library" ON)
 option(MINIZIP_BUILD_STATIC "Enable building zlib static library" ON)
 option(MINIZIP_BUILD_TESTING "Enable testing of minizip" ON)
