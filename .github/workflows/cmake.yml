@@ -12,6 +12,7 @@ jobs:
             os: ubuntu-latest
             compiler: gcc
             cflags: -Wall -Wextra
+            pkgtgt: package package_source
 
           # Test out of source builds
           - name: Ubuntu GCC OSB
@@ -20,50 +21,59 @@ jobs:
             cflags: -Wall -Wextra
             build-dir: ../build
             src-dir: ../zlib
+            pkgtgt: package package_source
 
           - name: Ubuntu GCC -O3
             os: ubuntu-latest
             compiler: gcc
             cflags: -O3 -Wall -Wextra
+            pkgtgt: package package_source
 
           - name: Ubuntu Clang
             os: ubuntu-latest
             compiler: clang
             cflags: -Wall -Wextra
+            pkgtgt: package package_source
 
           - name: Ubuntu Clang Debug
             os: ubuntu-latest
             compiler: clang
             cflags: -Wall -Wextra
             build-config: Debug
+            pkgtgt: package package_source
 
           - name: Windows MSVC Win32
             os: windows-latest
             compiler: cl
             cflags: /W3
             cmake-args: -A Win32
+            pkgtgt: PACKAGE
 
           - name: Windows MSVC Win64
             os: windows-latest
             compiler: cl
             cflags: /W3
             cmake-args: -A x64
+            pkgtgt: PACKAGE
 
           - name: Windows GCC
             os: windows-latest
             compiler: gcc
             cflags: -Wall -Wextra
             cmake-args: -G Ninja
+            pkgtgt: package
 
           - name: macOS Clang
             os: macos-latest
             compiler: clang
             cflags: -Wall -Wextra
+            pkgtgt: package
 
           - name: macOS GCC
             os: macos-latest
             compiler: gcc-12
             cflags: -Wall -Wextra
+            pkgtgt: package
 
     steps:
     - name: Checkout repository
@@ -85,6 +95,10 @@ jobs:
 
     - name: Run test cases
       run: ctest -C Release --output-on-failure --max-width 120
+      working-directory: ${{ matrix.build-dir || '.' }}
+
+    - name: create packages
+      run: cmake --build ${{ matrix.build-dir || '.' }} --config ${{ matrix.build-config || 'Release' }} -t ${{ matrix.pkgtgt }}
       working-directory: ${{ matrix.build-dir || '.' }}
 
     - name: Upload build errors
