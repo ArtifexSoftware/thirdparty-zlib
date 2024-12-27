@@ -8,7 +8,7 @@ project(minizip
 
 if(CMAKE_SIZEOF_VOID_P LESS 8 AND NOT MINGW)
     message(WARNING "libminizip needs 64bit - stopping here")
-#    return()
+    return()
 endif(CMAKE_SIZEOF_VOID_P LESS 8 AND NOT MINGW)
 
 #============================================================================
