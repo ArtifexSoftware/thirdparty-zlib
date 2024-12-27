@@ -166,8 +166,9 @@ if(MINIZIP_BUILD_SHARED)
         VERSIOM ${minizip_VERSION}
         SOVERSION ${minizip_VERSION_MAJOR})
     target_link_libraries(libminizip
-        PUBLIC
+        PRIVATE
             $<$<BOOL:${BZIP2_FOUND}>:BZip2::BZip2>
+        PUBLIC
             ZLIB::ZLIB)
 
     add_executable(minizip
@@ -221,8 +222,9 @@ if(MINIZIP_BUILD_STATIC)
     endif(CYGWIN)
 
     target_link_libraries(libminizipstatic
-        PUBLIC
+        PRIVATE
             $<$<BOOL:${BZIP2_FOUND}>:BZip2::BZip2>
+        PUBLIC
             ZLIB::ZLIBSTATIC)
 
     add_executable(minizipstatic
