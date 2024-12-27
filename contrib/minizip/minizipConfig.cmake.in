@@ -1,5 +1,5 @@
 set(minizip_VERSION @minizip_VERSION@)
-set(MINIZIP_ENABLE_BZIP2 @MINIZIP_ENABLE_BZIP2@)
+set(MINIZIP_ENABLE_BZIP2 @BZIP2_FOUND@)
 @PACKAGE_INIT@
 include(CMakeFindDependencyMacro)
 find_dependency(ZLIB CONFIG)
