@@ -88,7 +88,7 @@ check_c_source_compiles(
 unset(CMAKE_REQUIRED_FLAGS)
 
 if(NOT TARGET ZLIB::ZLIB)
-    find_package(ZLIB REQUIRED)
+    find_package(ZLIB REQUIRED CONFIG)
 endif(NOT TARGET ZLIB::ZLIB)
 
 set(LIBMINIZIP_SRCS
