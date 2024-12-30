@@ -170,11 +170,7 @@ if(MINIZIP_BUILD_SHARED)
         OUTPUT_NAME minizip
         VERSIOM ${minizip_VERSION}
         SOVERSION ${minizip_VERSION_MAJOR})
-    target_link_libraries(libminizip
-        PRIVATE
-            $<$<BOOL:${BZIP2_FOUND}>:BZip2::BZip2>
-        PUBLIC
-            ZLIB::ZLIB)
+    target_link_libraries(libminizip PUBLIC ZLIB::ZLIB)
 
     add_executable(minizip
         ${MINIZIP_SRCS}
@@ -224,12 +220,7 @@ if(MINIZIP_BUILD_STATIC)
             SUFFIX ".dll.a")
     endif(CYGWIN)
 
-    target_link_libraries(libminizipstatic
-        PRIVATE
-            $<$<BOOL:${BZIP2_FOUND}>:BZip2::BZip2>
-        PUBLIC
-            ZLIB::ZLIBSTATIC)
-
+    target_link_libraries(libminizipstatic PUBLIC ZLIB::ZLIBSTATIC)
     add_executable(minizipstatic
         ${MINIZIP_SRCS}
         ${MINIZIP_HDRS})
