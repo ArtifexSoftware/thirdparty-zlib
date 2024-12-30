@@ -44,7 +44,7 @@ if(NOT CPACK_INCLUDED)
 endif(NOT CPACK_INCLUDED)
 
 if(MINIZIP_ENABLE_BZIP2)
-    find_package(BZip2)
+    find_package(BZip2 REQUIRED)
 endif(MINIZIP_ENABLE_BZIP2)
 
 #
