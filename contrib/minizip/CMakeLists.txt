@@ -71,6 +71,7 @@ unset(CMAKE_REQUIRED_DEFINITIONS) # clear variable
 
 #
 # Check visibility attribute is supported
+#
 if(MSVC)
     set(CMAKE_REQUIRED_FLAGS "-WX")
 else(MSVC)
@@ -185,7 +186,6 @@ if(MINIZIP_BUILD_SHARED)
             $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
             $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>)
     target_link_libraries(minizip PRIVATE MINIZIP::minizip)
-
     add_executable(miniunzip
         ${MINIUNZIP_SRCS}
         ${MINIUNZIP_HDRS})
@@ -199,7 +199,6 @@ if(MINIZIP_BUILD_SHARED)
 endif(MINIZIP_BUILD_SHARED)
 
 if(MINIZIP_BUILD_STATIC)
-
     add_library(libminizipstatic STATIC
         ${LIBMINIZIP_SRCS}
         ${LIBMINIZIP_HDRS})
@@ -241,7 +240,6 @@ if(MINIZIP_BUILD_STATIC)
             $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
             $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>)
     target_link_libraries(minizipstatic PRIVATE MINIZIP::minizipstatic)
-
     add_executable(miniunzipstatic
         ${MINIUNZIP_SRCS}
         ${MINIUNZIP_HDRS})
