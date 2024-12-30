@@ -32,11 +32,11 @@ if(MINGW)
     option(MINIZIP_INSTALL_COMPAT_DLL "Install a copy as libminizip-1.dll" ON)
 endif(MINGW)
 
+include(CheckCSourceCompiles)
 include(CheckFunctionExists)
 include(CheckIncludeFile)
-include(CheckCSourceCompiles)
 include(CMakePackageConfigHelpers)
-include(CPack)
+include(CheckTypeSize)
 include(GNUInstallDirs)
 
 if(MINIZIP_ENABLE_BZIP2)
