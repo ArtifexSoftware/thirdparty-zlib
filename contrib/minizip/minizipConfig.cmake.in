@@ -1,5 +1,6 @@
 @PACKAGE_INIT@
 
+set(MINIZIP_ENABLE_BZIP2 @MINIZIP_ENABLE_BZIP2@)
 set(_minizip_supported_components "")
 include(CMakeFindDependencyMacro)
 if(@MINIZIP_BUILD_SHARED@)
