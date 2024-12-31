@@ -7,6 +7,7 @@ project(minizip_add_subdirectory_exclude_from_all
 option(MINIZIP_BUILD_TESTING "" OFF)
 option(MINIZIP_BUILD_SHARED "" @MINIZIP_BUILD_SHARED@)
 option(MINIZIP_BUILD_STATIC "" @MINIZIP_BUILD_STATIC@)
+option(MINIZIP_ENABLE_BZIP2 "" @MINIZIP_ENABLE_BZIP2@)
 
 add_subdirectory(@minizip_SOURCE_DIR@ ${CMAKE_CURRENT_BINARY_DIR}/minizip)
 
