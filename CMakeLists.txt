@@ -22,7 +22,7 @@ option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" ON)
 option(ZLIB_BUILD_SHARED "Enable building zlib shared library" ON)
 option(ZLIB_BUILD_STATIC "Enable building zlib static library" ON)
 option(ZLIB_BUILD_MINIZIP "Enable building libminizip contrib library" OFF)
-option(ZLIB_INSTALL_LIBRARIES "Enable installation of zlib" ON)
+option(ZLIB_INSTALL "Enable installation of zlib" ON)
 option(ZLIB_PREFIX
     "prefix for all types and library functions, see zconf.h.in"
     OFF)
@@ -227,7 +227,7 @@ if(ZLIB_BUILD_STATIC)
         OUTPUT_NAME z${zlib_static_suffix})
 endif(ZLIB_BUILD_STATIC)
 
-if(ZLIB_INSTALL_LIBRARIES)
+if(ZLIB_INSTALL)
     if(ZLIB_BUILD_SHARED)
         install(TARGETS zlib
             COMPONENT Runtime
@@ -308,7 +308,7 @@ if(ZLIB_INSTALL_LIBRARIES)
     install(FILES ${ZLIB_PC}
             COMPONENT Development
             DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
-endif(ZLIB_INSTALL_LIBRARIES)
+endif(ZLIB_INSTALL)
 
 #============================================================================
 # Tests
