@@ -22,8 +22,8 @@ set(CPACK_RESOURCE_FILE_README ${minizip_SOURCE_DIR}/MiniZip64_info.txt)
 #============================================================================
 # configuration
 #============================================================================
-option(MINIZIP_BUILD_SHARED "Enable building zlib shared library" ON)
-option(MINIZIP_BUILD_STATIC "Enable building zlib static library" ON)
+option(MINIZIP_BUILD_SHARED "Enable building minizip shared library" ON)
+option(MINIZIP_BUILD_STATIC "Enable building minizip static library" ON)
 option(MINIZIP_BUILD_TESTING "Enable testing of minizip" ON)
 option(MINIZIP_ENABLE_BZIP2 "Build minizip withj bzip2 support" ON)
 option(MINIZIP_INSTALL "Enable installation of minizip" ON)
