@@ -247,10 +247,14 @@ if(MINIZIP_INSTALL)
     if(MINIZIP_BUILD_SHARED)
         install(TARGETS libminizip minizip miniunzip
             COMPONENT Runtime
-            EXPORT minizipExport
+            EXPORT minizipSharedExport
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        install(EXPORT minizipSharedExport
+                FILE minizip-shared.cmake
+                NAMESPACE MINIZIP::
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minizip)
         if(MINIZIP_INSTALL_COMPAT_DLL)
             install(FILES  $<TARGET_FILE:libminizip>
                 COMPONENT Runtime
@@ -273,32 +277,27 @@ if(MINIZIP_INSTALL)
                 COMPONENT Development
             TARGETS  minizipstatic miniunzipstatic
                 COMPONENT Runtime
-            EXPORT minizipExport
+            EXPORT minizipStaticExport
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        install(EXPORT minizipStaticExport
+                FILE minizip-static.cmake
+                NAMESPACE MINIZIP::
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minizip)
     endif(MINIZIP_BUILD_STATIC)
 
     configure_package_config_file(${minizip_SOURCE_DIR}/minizipConfig.cmake.in
         ${minizip_BINARY_DIR}/minizipConfig.cmake
-        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minizip
-        NO_CHECK_REQUIRED_COMPONENTS_MACRO)
-
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minizip)
     write_basic_package_version_file(
         "${minizip_BINARY_DIR}/minizipConfigVersion.cmake"
         VERSION "${minizip_VERSION}"
         COMPATIBILITY AnyNewerVersion)
-
     install(FILES
         ${minizip_BINARY_DIR}/minizipConfig.cmake
         ${minizip_BINARY_DIR}/minizipConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minizip)
-
-    install(EXPORT minizipExport
-        FILE minizip.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/minizip
-        NAMESPACE MINIZIP::)
-
     install(FILES ${LIBMINIZIP_HDRS}
             COMPONENT Development
             DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")

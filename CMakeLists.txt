@@ -231,10 +231,14 @@ if(ZLIB_INSTALL_LIBRARIES)
     if(ZLIB_BUILD_SHARED)
         install(TARGETS zlib
             COMPONENT Runtime
-            EXPORT zlibExport
+            EXPORT zlibSharedExport
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        install(EXPORT zlibSharedExport
+                FILE ZLIB-shared.cmake
+                NAMESPACE ZLIB::
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
         if(ZLIB_INSTALL_COMPAT_DLL)
             install(FILES  $<TARGET_FILE:zlib>
                 COMPONENT Runtime
@@ -255,23 +259,26 @@ if(ZLIB_INSTALL_LIBRARIES)
     if(ZLIB_BUILD_STATIC)
         install(TARGETS zlibstatic
             COMPONENT Development
-            EXPORT zlibExport
+            EXPORT zlibStaticExport
             RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
             ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
             LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+        install(EXPORT zlibStaticExport
+            FILE ZLIB-static.cmake
+            NAMESPACE ZLIB::
+            DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
+
         if(ZLIB_INSTALL_COMPAT_DLL AND MINGW)
             install(FILES  $<TARGET_FILE:zlibstatic>
                 COMPONENT Development
                 RENAME libz.dll.a
                 DESTINATION "${CMAKE_INSTALL_LIBDIR}")
         endif(ZLIB_INSTALL_COMPAT_DLL AND MINGW)
-
     endif(ZLIB_BUILD_STATIC)
 
     configure_package_config_file(${zlib_SOURCE_DIR}/zlibConfig.cmake.in
         ${zlib_BINARY_DIR}/ZLIBConfig.cmake
-        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib
-        NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
 
     write_basic_package_version_file(
         "${zlib_BINARY_DIR}/ZLIBConfigVersion.cmake"
@@ -282,12 +289,6 @@ if(ZLIB_INSTALL_LIBRARIES)
         ${zlib_BINARY_DIR}/ZLIBConfig.cmake
         ${zlib_BINARY_DIR}/ZLIBConfigVersion.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib)
-
-    install(EXPORT zlibExport
-        FILE ZLIB.cmake
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/zlib
-        NAMESPACE ZLIB::)
-
     install(FILES ${ZLIB_PUBLIC_HDRS}
             COMPONENT Development
             DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
