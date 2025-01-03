@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(minizip_add_subdirectory_exclude_from_all
+project(
+    minizip_add_subdirectory_exclude_from_all
     LANGUAGES C
     VERSION @minizip_VERSION@)
 
@@ -14,8 +15,7 @@ add_subdirectory(@minizip_SOURCE_DIR@ ${CMAKE_CURRENT_BINARY_DIR}/minizip)
 set(MINIZIP_SRCS
     @minizip_SOURCE_DIR@/ioapi.c
     $<$<BOOL:${WIN32}>:@minizip_SOURCE_DIR@/iowin32.c>
-    @minizip_SOURCE_DIR@/minizip.c
-    @minizip_SOURCE_DIR@/zip.c)
+    @minizip_SOURCE_DIR@/minizip.c @minizip_SOURCE_DIR@/zip.c)
 
 if(MINIZIP_BUILD_SHARED)
     add_executable(test_example ${MINIZIP_SRCS})

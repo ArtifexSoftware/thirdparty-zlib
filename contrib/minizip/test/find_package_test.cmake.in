@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(minizip_find_package
+project(
+    minizip_find_package
     LANGUAGES C
     VERSION @minizip_VERSION@)
 
@@ -11,8 +12,7 @@ find_package(minizip ${minizip_VERSION} CONFIG REQUIRED)
 set(MINIZIP_SRCS
     @minizip_SOURCE_DIR@/ioapi.c
     $<$<BOOL:${WIN32}>:@minizip_SOURCE_DIR@/iowin32.c>
-    @minizip_SOURCE_DIR@/minizip.c
-    @minizip_SOURCE_DIR@/zip.c)
+    @minizip_SOURCE_DIR@/minizip.c @minizip_SOURCE_DIR@/zip.c)
 
 if(MINIZIP_BUILD_SHARED)
     add_executable(test_example ${MINIZIP_SRCS})

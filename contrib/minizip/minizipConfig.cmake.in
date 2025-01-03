@@ -15,7 +15,7 @@ if(minizip_FIND_COMPONENTS)
     find_dependency(ZLIB CONFIG COMPONENTS ${minizip_FIND_COMPONENTS})
 
     foreach(_comp ${minizip_FIND_COMPONENTS})
-        if (NOT _comp IN_LIST _MINIZIP_supported_components)
+        if(NOT _comp IN_LIST _MINIZIP_supported_components)
             set(minizip_FOUND False)
             set(minizip_NOT_FOUND_MESSAGE "Unsupported component: ${_comp}")
         endif(NOT _comp IN_LIST _MINIZIP_supported_components)

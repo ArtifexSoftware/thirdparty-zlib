@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(zlib_find_package_test
+project(
+    zlib_find_package_test
     LANGUAGES C
     VERSION @zlib_VERSION@)
 
@@ -21,6 +22,5 @@ endif(ZLIB_BUILD_SHARED)
 if(ZLIB_BUILD_STATIC)
     add_executable(test_example_static @zlib_SOURCE_DIR@/test/example.c)
     target_link_libraries(test_example_static ZLIB::ZLIBSTATIC)
-    add_test(NAME zlib_test_example_static
-        COMMAND test_example_static)
+    add_test(NAME zlib_test_example_static COMMAND test_example_static)
 endif(ZLIB_BUILD_STATIC)
