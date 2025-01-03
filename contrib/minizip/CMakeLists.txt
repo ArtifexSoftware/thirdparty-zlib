@@ -144,7 +144,7 @@ if(MINIZIP_BUILD_SHARED)
         libminizip
         PROPERTIES EXPORT_NAME minizip
                    OUTPUT_NAME minizip
-                   VERSIOM ${minizip_VERSION}
+                   VERSION ${minizip_VERSION}
                    SOVERSION ${minizip_VERSION_MAJOR})
     target_link_libraries(libminizip PUBLIC ZLIB::ZLIB)
 
