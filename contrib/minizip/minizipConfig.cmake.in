@@ -1,8 +1,8 @@
 @PACKAGE_INIT@
 
-set(MINIZIP_ENABLE_BZIP2 @MINIZIP_ENABLE_BZIP2@)
 set(_minizip_supported_components "")
 include(CMakeFindDependencyMacro)
+
 if(@MINIZIP_BUILD_SHARED@)
     list(APPEND _minizip_supported_components shared)
 endif(@MINIZIP_BUILD_SHARED@)
@@ -10,6 +10,10 @@ endif(@MINIZIP_BUILD_SHARED@)
 if(@MINIZIP_BUILD_STATIC@)
     list(APPEND _minizip_supported_components static)
 endif(@MINIZIP_BUILD_STATIC@)
+
+if(@MINIZIP_ENABLE_BZIP2@)
+    find_dependency(BZip2)
+endif(@MINIZIP_ENABLE_BZIP2@)
 
 if(minizip_FIND_COMPONENTS)
     find_dependency(ZLIB CONFIG COMPONENTS ${minizip_FIND_COMPONENTS})
