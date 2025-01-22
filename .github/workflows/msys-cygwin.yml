@@ -34,7 +34,8 @@ jobs:
           -S . \
           -B build \
           -DCMAKE_VERBOSE_MAKEFILE=ON \
-          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_BUILD_TYPE=Release \
+          -DMINIZIP_ENABLE_BZIP2=ON
     - name: Build
       run: cmake --build build --config Release
     - name: Run tests
@@ -65,7 +66,8 @@ jobs:
       run: |
         cmake /cygdrive/d/a/zlib/zlib \
           -B build \
-          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_BUILD_TYPE=Release \
+          -DMINIZIP_ENABLE_BZIP2=ON
     - name: Build
       run: cmake --build build --config Release
     - name: Run tests
