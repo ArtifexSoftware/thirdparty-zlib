@@ -48,17 +48,15 @@ jobs:
             os: windows-latest
             compiler: cl
             cflags: /W3
-            cmake-args: -A x64
+            cmake-args: -A x64 -DMINIZIP_ENABLE_BZIP2=OFF
             pkgtgt: PACKAGE
-            cmake-args: -DMINIZIP_ENABLE_BZIP2=OFF
 
           - name: Windows GCC
             os: windows-latest
             compiler: gcc
             cflags: -Wall -Wextra
-            cmake-args: -G Ninja
+            cmake-args: -G Ninja -DMINIZIP_ENABLE_BZIP2=OFF
             pkgtgt: package
-            cmake-args: -DMINIZIP_ENABLE_BZIP2=OFF
 
           - name: macOS Clang
             os: macos-latest
