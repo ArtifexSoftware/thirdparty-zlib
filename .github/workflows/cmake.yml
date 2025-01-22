@@ -75,8 +75,8 @@ jobs:
       run: |
         choco install --no-progress ninja bzip2
 
-    - name: Install packages (Windows)
-      if: runner.os == 'Ubuntu'
+    - name: Install packages (Linux)
+      if: runner.os == 'Linux'
       run: |
         apt install libbz2-dev
     - name: Generate project files
