@@ -58,6 +58,7 @@ jobs:
       uses: cygwin/cygwin-install-action@master
       with:
         packages: >-
+          bzip2
           cmake
           cygwin-devel
           gcc-core
