@@ -58,7 +58,6 @@ jobs:
       uses: cygwin/cygwin-install-action@master
       with:
         packages: >-
-          bzip2
           cmake
           cygwin-devel
           gcc-core
@@ -70,7 +69,7 @@ jobs:
           -B build \
           -DCMAKE_BUILD_TYPE=Release \
           -DZLIB_BUILD_MINIZIP=ON \
-          -DMINIZIP_ENABLE_BZIP2=ON \
+          -DMINIZIP_ENABLE_BZIP2=OFF
           -G Ninja
     - name: Build
       run: cmake --build build --config Release -v -j1
