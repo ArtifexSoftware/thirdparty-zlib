@@ -40,35 +40,33 @@ jobs:
     - name: Run tests
       run: ctest --output-on-failure --test-dir build -C Release
 
-#  cygwin:
-#    strategy:
-#      fail-fast: false
-#    runs-on: windows-latest
-#    defaults:
-#      run:
-#        shell: C:\cygwin\bin\bash.exe --login -o igncr '{0}'
-#    name: Cygwin
-#    steps:
-#    - name: Checkout
-#      uses: actions/checkout@v4
-#      with:
-#        fetch-depth: 0
-#    - name: Setup cygwin
-#      uses: cygwin/cygwin-install-action@master
-#      with:
-#        packages: >-
-#          cmake
-#          cygwin-devel
-#          gcc-core
-#          gcc-g++
-#          ninja
-#    - name: Configure
-#      run: |
-#        cmake /cygdrive/d/a/zlib/zlib \
-#          -B build \
-#          -DCMAKE_BUILD_TYPE=Release \
-#          -G Ninja
-#    - name: Build
-#      run: cmake --build build --config Release
-#    - name: Run tests
-#      run: ctest --output-on-failure --test-dir build -C Release
+  cygwin:
+    strategy:
+      fail-fast: false
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: C:\cygwin\bin\bash.exe --login -o igncr '{0}'
+    name: Cygwin
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Setup cygwin
+      uses: cygwin/cygwin-install-action@master
+      with:
+        packages: >-
+          cmake
+          cygwin-devel
+          gcc-core
+          gcc-g++
+    - name: Configure
+      run: |
+        cmake /cygdrive/d/a/zlib/zlib \
+          -B build \
+          -DCMAKE_BUILD_TYPE=Release
+    - name: Build
+      run: cmake --build build --config Release
+    - name: Run tests
+      run: ctest --output-on-failure --test-dir build -C Release
