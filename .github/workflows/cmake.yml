@@ -73,8 +73,12 @@ jobs:
     - name: Install packages (Windows)
       if: runner.os == 'Windows'
       run: |
-        choco install --no-progress ninja ${{ matrix.packages }}
+        choco install --no-progress ninja bzip2
 
+    - name: Install packages (Windows)
+      if: runner.os == 'Ubuntu'
+      run: |
+        apt install libbz2-dev
     - name: Generate project files
       run: cmake -S . -B ../build ${{ matrix.cmake-args }} -D CMAKE_BUILD_TYPE=${{ matrix.build-config || 'Release' }} -DZLIB_BUILD_MINIZIP=ON -DMINIZIP_ENABLE_BZIP2=ON
       env:
