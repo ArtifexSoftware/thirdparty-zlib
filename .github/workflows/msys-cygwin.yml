@@ -62,14 +62,16 @@ jobs:
           cygwin-devel
           gcc-core
           gcc-g++
-          make
+          ninja
     - name: Configure
       run: |
         cmake /cygdrive/d/a/zlib/zlib \
           -B build \
           -DCMAKE_BUILD_TYPE=Release \
-          -DMINIZIP_ENABLE_BZIP2=ON
+          -DZLIB_BUILD_MINIZIP=ON \
+          -DMINIZIP_ENABLE_BZIP2=ON \
+          -G Ninja
     - name: Build
-      run: cmake --build build --config Release
+      run: cmake --build build --config Release -v -j1
     - name: Run tests
       run: ctest --output-on-failure --test-dir build -C Release
