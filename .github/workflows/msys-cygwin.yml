@@ -68,7 +68,8 @@ jobs:
         cmake /cygdrive/d/a/zlib/zlib \
           -B build \
           -DCMAKE_BUILD_TYPE=Release \
-          -DZLIB_BUILD_MINIZIP=OFF \
+          -DZLIB_BUILD_MINIZIP=ON \
+          -DMINIZIP_ENABLE_BZIP2=OFF \
           -G Ninja
     - name: Build
       run: cmake --build build --config Release -v -j1

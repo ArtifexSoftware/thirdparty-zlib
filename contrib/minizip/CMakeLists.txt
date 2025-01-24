@@ -114,10 +114,10 @@ set(MINIUNZIP_HDRS
     unzip.h
     zip.h)
 
-if(WIN32)
+if(WIN32 OR CYGWIN)
     set(minizip_static_suffix "s")
     set(CMAKE_DEBUG_POSTFIX "d")
-endif(WIN32)
+endif(WIN32 OR CYGWIN)
 
 if(MINIZIP_BUILD_SHARED)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
