@@ -131,9 +131,9 @@ if(MINIZIP_BUILD_SHARED)
         PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
                 $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>
                 $<$<BOOL:${HAVE_UNISTD_H}>:HAVE_UNISTD_H=1>
-                $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>
         PUBLIC $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>
-                $<$<BOOL:${BZIP2_FOUND}>:HAVE_BZIP2=1>)
+                $<$<BOOL:${BZIP2_FOUND}>:HAVE_BZIP2=1>
+                $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>)
 
     if(NOT CYGWIN)
         set_target_properties(libminizip PROPERTIES SOVERSION
@@ -154,14 +154,12 @@ if(MINIZIP_BUILD_SHARED)
     add_executable(minizip ${MINIZIP_SRCS} ${MINIZIP_HDRS})
     set_target_properties(minizip PROPERTIES EXPORT_NAME minizip_executable)
     target_compile_definitions(
-        minizip PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-                        $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>)
+        minizip PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
     target_link_libraries(minizip PRIVATE MINIZIP::minizip)
     add_executable(miniunzip ${MINIUNZIP_SRCS} ${MINIUNZIP_HDRS})
     set_target_properties(miniunzip PROPERTIES EXPORT_NAME miniunzip_executable)
     target_compile_definitions(
-        miniunzip PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-                          $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>)
+        miniunzip PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
     target_link_libraries(miniunzip PRIVATE MINIZIP::minizip)
 endif(MINIZIP_BUILD_SHARED)
 
@@ -177,9 +175,9 @@ if(MINIZIP_BUILD_STATIC)
         PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
                 $<$<BOOL:${HAVE___ATTR__VIS_HIDDEN}>:HAVE_HIDDEN>
                 $<$<BOOL:${HAVE_UNISTD_H}>:HAVE_UNISTD_H=1>
-                $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>
         PUBLIC $<$<BOOL:${HAVE_OFF64_T}>:_LARGEFILE64_SOURCE=1>
-                $<$<BOOL:${BZIP2_FOUND}>:HAVE_BZIP2=1>)
+                $<$<BOOL:${BZIP2_FOUND}>:HAVE_BZIP2=1>
+                $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>)
     set_target_properties(
         libminizipstatic PROPERTIES EXPORT_NAME minizipstatic
                                     OUTPUT_NAME minizip${minizip_static_suffix})
@@ -195,15 +193,13 @@ if(MINIZIP_BUILD_STATIC)
     set_target_properties(minizipstatic PROPERTIES EXPORT_NAME
                                                    minizip_static_executable)
     target_compile_definitions(
-        minizipstatic PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-                              $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>)
+        minizipstatic PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
     target_link_libraries(minizipstatic PRIVATE MINIZIP::minizipstatic)
     add_executable(miniunzipstatic ${MINIUNZIP_SRCS} ${MINIUNZIP_HDRS})
     set_target_properties(miniunzipstatic
                           PROPERTIES EXPORT_NAME miniunzip_static_executable)
     target_compile_definitions(
-        miniunzipstatic PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>
-                                $<$<BOOL:NOT:${HAVE_FOPEN64}>:USE_FILE32API=1>)
+        miniunzipstatic PRIVATE $<$<BOOL:${MSVC}>:_CRT_SECURE_NO_WARNINGS>)
     target_link_libraries(miniunzipstatic PRIVATE MINIZIP::minizipstatic)
 endif(MINIZIP_BUILD_STATIC)
 
