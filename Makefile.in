@@ -355,15 +355,15 @@ docs: zlib.3.pdf
 zlib.3.pdf: $(SRCDIR)zlib.3
 	groff -mandoc -f H -T ps $(SRCDIR)zlib.3 | ps2pdf - $@
 
-zconf.h.cmakein: $(SRCDIR)zconf.h.in
-	-@ TEMPFILE=zconfh_$$; \
-	echo "/#define ZCONF_H/ a\\\\\n#cmakedefine Z_PREFIX\\\\\n#cmakedefine Z_HAVE_UNISTD_H\n" >> $$TEMPFILE &&\
-	sed -f $$TEMPFILE $(SRCDIR)zconf.h.in > $@ &&\
-	touch -r $(SRCDIR)zconf.h.in $@ &&\
-	rm $$TEMPFILE
-
-zconf: $(SRCDIR)zconf.h.in
-	cp -p $(SRCDIR)zconf.h.in zconf.h
+# zconf.h.cmakein: $(SRCDIR)zconf.h.in
+# 	-@ TEMPFILE=zconfh_$$; \
+# 	echo "/#define ZCONF_H/ a\\\\\n#cmakedefine Z_PREFIX\\\\\n#cmakedefine Z_HAVE_UNISTD_H\n" >> $$TEMPFILE &&\
+# 	sed -f $$TEMPFILE $(SRCDIR)zconf.h.in > $@ &&\
+# 	touch -r $(SRCDIR)zconf.h.in $@ &&\
+# 	rm $$TEMPFILE
+# 
+# zconf: $(SRCDIR)zconf.h.in
+# 	cp -p $(SRCDIR)zconf.h.in zconf.h
 
 minizip-test: static
 	cd contrib/minizip && { CC="$(CC)" CFLAGS="$(CFLAGS)" $(MAKE) test ; cd ../.. ; }
@@ -384,8 +384,8 @@ clean: minizip-clean
 	rm -f contrib/infback9/*.gcda contrib/infback9/*.gcno contrib/infback9/*.gcov
 
 maintainer-clean: distclean
-distclean: clean zconf zconf.h.cmakein
-	rm -f Makefile zlib.pc configure.log
+distclean: clean # zconf zconf.h.cmakein
+	rm -f Makefile zlib.pc configure.log zconf.h
 	-@rm -f .DS_Store
 	@if [ -f Makefile.in ]; then \
 	printf 'all:\n\t-@echo "Please use ./configure first.  Thank you."\n' > Makefile ; \
