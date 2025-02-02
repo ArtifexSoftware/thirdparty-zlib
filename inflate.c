@@ -884,12 +884,12 @@ int ZEXPORT inflate(z_streamp strm, int flush) {
                 if (copy > have) copy = have;
                 if (copy > left) copy = left;
                 if (copy == 0) goto inf_leave;
-                zmemcpy(put, next, copy);
                 have -= copy;
-                next += copy;
                 left -= copy;
-                put += copy;
                 state->length -= copy;
+                do {
+                    *put++ = *next++;
+                } while (--copy);
                 break;
             }
             Tracev((stderr, "inflate:       stored end\n"));
