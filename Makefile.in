@@ -362,8 +362,9 @@ zlib.3.pdf: $(SRCDIR)zlib.3
 # 	touch -r $(SRCDIR)zconf.h.in $@ &&\
 # 	rm $$TEMPFILE
 # 
-# zconf: $(SRCDIR)zconf.h.in
-# 	cp -p $(SRCDIR)zconf.h.in zconf.h
+
+zconf: $(SRCDIR)zconf.h.in
+	cp -p $(SRCDIR)zconf.h.in zconf.h
 
 minizip-test: static
 	cd contrib/minizip && { CC="$(CC)" CFLAGS="$(CFLAGS)" $(MAKE) test ; cd ../.. ; }
@@ -384,8 +385,8 @@ clean: minizip-clean
 	rm -f contrib/infback9/*.gcda contrib/infback9/*.gcno contrib/infback9/*.gcov
 
 maintainer-clean: distclean
-distclean: clean # zconf zconf.h.cmakein
-	rm -f Makefile zlib.pc configure.log zconf.h
+distclean: clean zconf # zconf.h.cmakein
+	rm -f Makefile zlib.pc configure.log
 	-@rm -f .DS_Store
 	@if [ -f Makefile.in ]; then \
 	printf 'all:\n\t-@echo "Please use ./configure first.  Thank you."\n' > Makefile ; \
