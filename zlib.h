@@ -1586,7 +1586,7 @@ ZEXTERN z_off_t ZEXPORT gzseek(gzFile file,
    would be before the current position.
 */
 
-ZEXTERN int ZEXPORT    gzrewind(gzFile file);
+ZEXTERN int ZEXPORT gzrewind(gzFile file);
 /*
      Rewind file. This function is supported only for reading.
 
@@ -1594,7 +1594,7 @@ ZEXTERN int ZEXPORT    gzrewind(gzFile file);
 */
 
 /*
-ZEXTERN z_off_t ZEXPORT    gztell(gzFile file);
+ZEXTERN z_off_t ZEXPORT gztell(gzFile file);
 
      Return the starting position for the next gzread or gzwrite on file.
    This position represents a number of bytes in the uncompressed data stream,
@@ -1650,7 +1650,7 @@ ZEXTERN int ZEXPORT gzdirect(gzFile file);
    gzip file reading and decompression, which may not be desired.)
 */
 
-ZEXTERN int ZEXPORT    gzclose(gzFile file);
+ZEXTERN int ZEXPORT gzclose(gzFile file);
 /*
      Flush all pending output for file, if necessary, close file and
    deallocate the (de)compression state.  Note that once file is closed, you
