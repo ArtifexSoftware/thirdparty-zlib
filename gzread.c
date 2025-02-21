@@ -234,20 +234,22 @@ local int gz_fetch(gz_statep state) {
     return 0;
 }
 
-/* Skip len uncompressed bytes of output.  Return -1 on error, 0 on success. */
-local int gz_skip(gz_statep state, z_off64_t len) {
+/* Skip state->skip (> 0) uncompressed bytes of output.  Return -1 on error, 0
+  on success. */
+local int gz_skip(gz_statep state) {
     unsigned n;
 
     /* skip over len bytes or reach end-of-file, whichever comes first */
-    while (len)
+    do {
         /* skip over whatever is in output buffer */
         if (state->x.have) {
-            n = GT_OFF(state->x.have) || (z_off64_t)state->x.have > len ?
-                (unsigned)len : state->x.have;
+            n = GT_OFF(state->x.have) ||
+            (z_off64_t)state->x.have > state->skip ?
+            (unsigned)state->skip : state->x.have;
             state->x.have -= n;
             state->x.next += n;
             state->x.pos += n;
-            len -= n;
+            state->skip -= n;
         }
 
         /* output buffer empty -- return if we're at the end of the input */
@@ -260,6 +262,7 @@ local int gz_skip(gz_statep state, z_off64_t len) {
             if (gz_fetch(state) == -1)
                 return -1;
         }
+    } while (state->skip);
     return 0;
 }
 
@@ -276,11 +279,8 @@ local z_size_t gz_read(gz_statep state, voidp buf, z_size_t len) {
         return 0;
 
     /* process a skip request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_skip(state, state->skip) == -1)
-            return 0;
-    }
+    if (state->skip && gz_skip(state) == -1)
+        return 0;
 
     /* get len bytes to buf, or less than len if at the end */
     got = 0;
@@ -456,11 +456,8 @@ int ZEXPORT gzungetc(int c, gzFile file) {
         return -1;
 
     /* process a skip request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_skip(state, state->skip) == -1)
-            return -1;
-    }
+    if (state->skip && gz_skip(state) == -1)
+        return -1;
 
     /* can't push EOF */
     if (c < 0)
@@ -516,11 +513,8 @@ char * ZEXPORT gzgets(gzFile file, char *buf, int len) {
         return NULL;
 
     /* process a skip request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_skip(state, state->skip) == -1)
-            return NULL;
-    }
+    if (state->skip && gz_skip(state) == -1)
+        return NULL;
 
     /* copy output bytes up to new line or len - 1, whichever comes first --
        append a terminating zero to the string (we don't check for a zero in

@@ -138,9 +138,9 @@ local int gz_comp(gz_statep state, int flush) {
     return 0;
 }
 
-/* Compress len zeros to output.  Return -1 on a write error or memory
-   allocation failure by gz_comp(), or 0 on success. */
-local int gz_zero(gz_statep state, z_off64_t len) {
+/* Compress state->skip (> 0) zeros to output.  Return -1 on a write error or
+   memory allocation failure by gz_comp(), or 0 on success. */
+local int gz_zero(gz_statep state) {
     int first;
     unsigned n;
     z_streamp strm = &(state->strm);
@@ -149,11 +149,11 @@ local int gz_zero(gz_statep state, z_off64_t len) {
     if (strm->avail_in && gz_comp(state, Z_NO_FLUSH) == -1)
         return -1;
 
-    /* compress len zeros (len guaranteed > 0) */
+    /* compress state->skip zeros */
     first = 1;
-    while (len) {
-        n = GT_OFF(state->size) || (z_off64_t)state->size > len ?
-            (unsigned)len : state->size;
+    do {
+        n = GT_OFF(state->size) || (z_off64_t)state->size > state->skip ?
+            (unsigned)state->skip : state->size;
         if (first) {
             memset(state->in, 0, n);
             first = 0;
@@ -163,8 +163,8 @@ local int gz_zero(gz_statep state, z_off64_t len) {
         state->x.pos += n;
         if (gz_comp(state, Z_NO_FLUSH) == -1)
             return -1;
-        len -= n;
-    }
+        state->skip -= n;
+    } while (state->skip);
     return 0;
 }
 
@@ -182,11 +182,8 @@ local z_size_t gz_write(gz_statep state, voidpc buf, z_size_t len) {
         return 0;
 
     /* check for seek request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_zero(state, state->skip) == -1)
-            return 0;
-    }
+    if (state->skip && gz_zero(state) == -1)
+        return 0;
 
     /* for small len, copy to input buffer, otherwise compress directly */
     if (len < state->size) {
@@ -301,11 +298,8 @@ int ZEXPORT gzputc(gzFile file, int c) {
         return -1;
 
     /* check for seek request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_zero(state, state->skip) == -1)
-            return -1;
-    }
+    if (state->skip && gz_zero(state) == -1)
+        return -1;
 
     /* try writing to input buffer for speed (state->size == 0 if buffer not
        initialized) */
@@ -378,11 +372,8 @@ int ZEXPORTVA gzvprintf(gzFile file, const char *format, va_list va) {
         return state->err;
 
     /* check for seek request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_zero(state, state->skip) == -1)
-            return state->err;
-    }
+    if (state->skip && gz_zero(state) == -1)
+        return state->err;
 
     /* do the printf() into the input buffer, put length in len -- the input
        buffer is double-sized just for this function, so there is guaranteed to
@@ -468,11 +459,8 @@ int ZEXPORTVA gzprintf(gzFile file, const char *format, int a1, int a2, int a3,
         return state->error;
 
     /* check for seek request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_zero(state, state->skip) == -1)
-            return state->error;
-    }
+    if (state->skip && gz_zero(state) == -1)
+        return state->error;
 
     /* do the printf() into the input buffer, put length in len -- the input
        buffer is double-sized just for this function, so there is guaranteed to
@@ -542,11 +530,8 @@ int ZEXPORT gzflush(gzFile file, int flush) {
         return Z_STREAM_ERROR;
 
     /* check for seek request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_zero(state, state->skip) == -1)
-            return state->err;
-    }
+    if (state->skip && gz_zero(state) == -1)
+        return state->err;
 
     /* compress remaining data with requested flush */
     (void)gz_comp(state, flush);
@@ -573,11 +558,8 @@ int ZEXPORT gzsetparams(gzFile file, int level, int strategy) {
         return Z_OK;
 
     /* check for seek request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_zero(state, state->skip) == -1)
-            return state->err;
-    }
+    if (state->skip && gz_zero(state) == -1)
+        return state->err;
 
     /* change compression parameters for subsequent input */
     if (state->size) {
@@ -606,11 +588,8 @@ int ZEXPORT gzclose_w(gzFile file) {
         return Z_STREAM_ERROR;
 
     /* check for seek request */
-    if (state->seek) {
-        state->seek = 0;
-        if (gz_zero(state, state->skip) == -1)
-            ret = state->err;
-    }
+    if (state->skip && gz_zero(state) == -1)
+        ret = state->err;
 
     /* flush, free memory, and close file */
     if (gz_comp(state, Z_FINISH) == -1)

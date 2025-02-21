@@ -75,7 +75,7 @@ local void gz_reset(gz_statep state) {
     }
     else                            /* for writing ... */
         state->reset = 0;           /* no deflateReset pending */
-    state->seek = 0;                /* no seek request pending */
+    state->skip = 0;                /* no seek request pending */
     gz_error(state, Z_OK, NULL);    /* clear error */
     state->x.pos = 0;               /* no uncompressed data yet */
     state->strm.avail_in = 0;       /* no input data yet */
@@ -362,9 +362,10 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence) {
     /* normalize offset to a SEEK_CUR specification */
     if (whence == SEEK_SET)
         offset -= state->x.pos;
-    else if (state->seek)
-        offset += state->skip;
-    state->seek = 0;
+    else {
+        offset += state->past ? 0 : state->skip;
+        state->skip = 0;
+    }
 
     /* if within raw area while reading, just go there */
     if (state->mode == GZ_READ && state->how == COPY &&
@@ -375,7 +376,7 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence) {
         state->x.have = 0;
         state->eof = 0;
         state->past = 0;
-        state->seek = 0;
+        state->skip = 0;
         gz_error(state, Z_OK, NULL);
         state->strm.avail_in = 0;
         state->x.pos += offset;
@@ -404,10 +405,7 @@ z_off64_t ZEXPORT gzseek64(gzFile file, z_off64_t offset, int whence) {
     }
 
     /* request skip (if not zero) */
-    if (offset) {
-        state->seek = 1;
-        state->skip = offset;
-    }
+    state->skip = offset;
     return state->x.pos + offset;
 }
 
@@ -431,7 +429,7 @@ z_off64_t ZEXPORT gztell64(gzFile file) {
         return -1;
 
     /* return position */
-    return state->x.pos + (state->seek ? state->skip : 0);
+    return state->x.pos + (state->past ? 0 : state->skip);
 }
 
 /* -- see zlib.h -- */
