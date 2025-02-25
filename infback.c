@@ -353,7 +353,8 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
             DROPBITS(4);
 #ifndef PKZIP_BUG_WORKAROUND
             if (state->nlen > 286 || state->ndist > 30) {
-                strm->msg = (z_const char *)"too many length or distance symbols";
+                strm->msg = (z_const char *)
+                    "too many length or distance symbols";
                 state->mode = BAD;
                 break;
             }
@@ -398,7 +399,8 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                         NEEDBITS(here.bits + 2);
                         DROPBITS(here.bits);
                         if (state->have == 0) {
-                            strm->msg = (z_const char *)"invalid bit length repeat";
+                            strm->msg = (z_const char *)
+                                "invalid bit length repeat";
                             state->mode = BAD;
                             break;
                         }
@@ -421,7 +423,8 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
                         DROPBITS(7);
                     }
                     if (state->have + copy > state->nlen + state->ndist) {
-                        strm->msg = (z_const char *)"invalid bit length repeat";
+                        strm->msg = (z_const char *)
+                            "invalid bit length repeat";
                         state->mode = BAD;
                         break;
                     }
@@ -435,7 +438,8 @@ int ZEXPORT inflateBack(z_streamp strm, in_func in, void FAR *in_desc,
 
             /* check for end-of-block code (better have one) */
             if (state->lens[256] == 0) {
-                strm->msg = (z_const char *)"invalid code -- missing end-of-block";
+                strm->msg = (z_const char *)
+                    "invalid code -- missing end-of-block";
                 state->mode = BAD;
                 break;
             }

@@ -905,7 +905,8 @@ int ZEXPORT inflate(z_streamp strm, int flush) {
             DROPBITS(4);
 #ifndef PKZIP_BUG_WORKAROUND
             if (state->nlen > 286 || state->ndist > 30) {
-                strm->msg = (z_const char *)"too many length or distance symbols";
+                strm->msg = (z_const char *)
+                    "too many length or distance symbols";
                 state->mode = BAD;
                 break;
             }
@@ -952,7 +953,8 @@ int ZEXPORT inflate(z_streamp strm, int flush) {
                         NEEDBITS(here.bits + 2);
                         DROPBITS(here.bits);
                         if (state->have == 0) {
-                            strm->msg = (z_const char *)"invalid bit length repeat";
+                            strm->msg = (z_const char *)
+                                "invalid bit length repeat";
                             state->mode = BAD;
                             break;
                         }
@@ -975,7 +977,8 @@ int ZEXPORT inflate(z_streamp strm, int flush) {
                         DROPBITS(7);
                     }
                     if (state->have + copy > state->nlen + state->ndist) {
-                        strm->msg = (z_const char *)"invalid bit length repeat";
+                        strm->msg = (z_const char *)
+                            "invalid bit length repeat";
                         state->mode = BAD;
                         break;
                     }
@@ -989,7 +992,8 @@ int ZEXPORT inflate(z_streamp strm, int flush) {
 
             /* check for end-of-block code (better have one) */
             if (state->lens[256] == 0) {
-                strm->msg = (z_const char *)"invalid code -- missing end-of-block";
+                strm->msg = (z_const char *)
+                    "invalid code -- missing end-of-block";
                 state->mode = BAD;
                 break;
             }
@@ -1136,7 +1140,8 @@ int ZEXPORT inflate(z_streamp strm, int flush) {
                 copy = state->offset - copy;
                 if (copy > state->whave) {
                     if (state->sane) {
-                        strm->msg = (z_const char *)"invalid distance too far back";
+                        strm->msg = (z_const char *)
+                            "invalid distance too far back";
                         state->mode = BAD;
                         break;
                     }
