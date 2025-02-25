@@ -1578,7 +1578,8 @@ ZEXTERN z_off_t ZEXPORT gzseek(gzFile file,
      If the file is opened for reading, this function is emulated but can be
    extremely slow.  If the file is opened for writing, only forward seeks are
    supported; gzseek then compresses a sequence of zeroes up to the new
-   starting position.
+   starting position. For reading or writing, any actual seeking is deferred
+   until the next read or write operation, or close operation when writing.
 
      gzseek returns the resulting offset location as measured in bytes from
    the beginning of the uncompressed stream, or -1 in case of error, in
