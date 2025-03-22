@@ -110,6 +110,7 @@ int ZEXPORT inflateResetKeep(z_streamp strm) {
     state = (struct inflate_state FAR *)strm->state;
     strm->total_in = strm->total_out = state->total = 0;
     strm->msg = Z_NULL;
+    strm->data_type = 0;
     if (state->wrap)        /* to support ill-conceived Java test suite */
         strm->adler = state->wrap & 1;
     state->mode = HEAD;
@@ -234,7 +235,7 @@ int ZEXPORT inflatePrime(z_streamp strm, int bits, int value) {
     }
     if (bits > 16 || state->bits + (uInt)bits > 32) return Z_STREAM_ERROR;
     value &= (1L << bits) - 1;
-    state->hold += (unsigned)value << state->bits;
+    state->hold += (unsigned long)value << state->bits;
     state->bits += (uInt)bits;
     return Z_OK;
 }
