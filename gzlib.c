@@ -72,6 +72,7 @@ local void gz_reset(gz_statep state) {
         state->eof = 0;             /* not at end of file */
         state->past = 0;            /* have not read past end yet */
         state->how = LOOK;          /* look for gzip header */
+        state->junk = -1;           /* mark first member */
     }
     else                            /* for writing ... */
         state->reset = 0;           /* no deflateReset pending */
