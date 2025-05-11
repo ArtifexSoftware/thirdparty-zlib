@@ -106,6 +106,14 @@ local int gz_look(gz_statep state) {
         }
     }
 
+    /* if transparent reading is disabled, simply read as gzip */
+    if (state->direct == -1) {
+        inflateReset(strm);
+        state->how = GZIP;
+        state->direct = 0;
+        return 0;
+    }
+
     /* get at least the magic bytes in the input buffer */
     if (strm->avail_in < 2) {
         if (gz_avail(state) == -1)
@@ -567,7 +575,7 @@ int ZEXPORT gzdirect(gzFile file) {
         (void)gz_look(state);
 
     /* return 1 if transparent, 0 if processing a gzip stream */
-    return state->direct;
+    return state->direct == 1;
 }
 
 /* -- see zlib.h -- */
