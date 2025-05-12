@@ -88,8 +88,9 @@ local int gz_comp(gz_statep state, int flush) {
 
     /* check for a pending reset */
     if (state->reset) {
-        /* don't start a new gzip member unless there is data to write */
-        if (strm->avail_in == 0)
+        /* don't start a new gzip member unless there is data to write and
+           we're not flushing */
+        if (strm->avail_in == 0 && flush == Z_NO_FLUSH)
             return 0;
         deflateReset(strm);
         state->reset = 0;
