@@ -1,7 +1,7 @@
 /* zran.c -- example of deflate stream indexing and random access
- * Copyright (C) 2005, 2012, 2018, 2023, 2024 Mark Adler
+ * Copyright (C) 2005, 2012, 2018, 2023, 2024, 2025 Mark Adler
  * For conditions of distribution and use, see copyright notice in zlib.h
- * Version 1.6  2 Aug 2024  Mark Adler */
+ * Version 1.7  16 May 2025  Mark Adler */
 
 /* Version History:
  1.0  29 May 2005  First version
@@ -19,6 +19,8 @@
                    Provide a reusable inflate engine in the index
                    Allocate the dictionaries to reduce memory usage
  1.6   2 Aug 2024  Remove unneeded dependency on limits.h
+ 1.7  16 May 2025  Remove redundant frees of point list on error
+                   Clean out point list structure when freed
  */
 
 // Illustrate the use of Z_BLOCK, inflatePrime(), and inflateSetDictionary()
@@ -71,19 +73,19 @@
 // See comments in zran.h.
 void deflate_index_free(struct deflate_index *index) {
     if (index != NULL) {
-        size_t i = index->have;
-        while (i)
-            free(index->list[--i].window);
+        while (index->have)
+            free(index->list[--index->have].window);
         free(index->list);
+        index->list = NULL;
         inflateEnd(&index->strm);
         free(index);
     }
 }
 
-// Add an access point to the list. If out of memory, deallocate the existing
-// list and return NULL. index->mode is temporarily the allocated number of
-// access points, until it is time for deflate_index_build() to return. Then
-// index->mode is set to the mode of inflation.
+// Add an access point to the list. If out of memory, return NULL. index->mode
+// is temporarily the allocated number of access points, until it is time for
+// deflate_index_build() to return. Then index->mode is set to the mode of
+// inflation.
 static struct deflate_index *add_point(struct deflate_index *index, off_t in,
                                        off_t out, off_t beg,
                                        unsigned char *window) {
@@ -91,29 +93,23 @@ static struct deflate_index *add_point(struct deflate_index *index, off_t in,
         // The list is full. Make it bigger.
         index->mode = index->mode ? index->mode << 1 : 8;
         point_t *next = realloc(index->list, sizeof(point_t) * index->mode);
-        if (next == NULL) {
-            deflate_index_free(index);
+        if (next == NULL)
             return NULL;
-        }
         index->list = next;
     }
 
     // Fill in the access point and increment how many we have.
     point_t *next = (point_t *)(index->list) + index->have++;
-    if (index->have < 0) {
+    if (index->have < 0)
         // Overflowed the int!
-        deflate_index_free(index);
         return NULL;
-    }
     next->out = out;
     next->in = in;
     next->bits = index->strm.data_type & 7;
     next->dict = out - beg > WINSIZE ? WINSIZE : (unsigned)(out - beg);
     next->window = malloc(next->dict);
-    if (next->window == NULL) {
-        deflate_index_free(index);
+    if (next->window == NULL)
         return NULL;
-    }
     unsigned recent = WINSIZE - index->strm.avail_out;
     unsigned copy = recent > next->dict ? next->dict : recent;
     memcpy(next->window + next->dict - copy, window + recent - copy, copy);
