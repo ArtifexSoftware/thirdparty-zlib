@@ -185,6 +185,7 @@ typedef struct {
         /* just for reading */
     int junk;               /* -1 = start, 1 = junk candidate, 0 = in gzip */
     int how;                /* 0: get header, 1: copy, 2: decompress */
+    int again;              /* true if EAGAIN or EWOULDBLOCK on last i/o */
     z_off64_t start;        /* where the gzip data started, for rewinding */
     int eof;                /* true if end of input file reached */
     int past;               /* true if read requested past end */

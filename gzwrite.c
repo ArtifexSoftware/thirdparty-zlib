@@ -74,9 +74,13 @@ local int gz_comp(gz_statep state, int flush) {
     /* write directly if requested */
     if (state->direct) {
         while (strm->avail_in) {
+            errno = 0;
+            state->again = 0;
             put = strm->avail_in > max ? max : strm->avail_in;
             writ = write(state->fd, strm->next_in, put);
             if (writ < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    state->again = 1;
                 gz_error(state, Z_ERRNO, zstrerror());
                 return -1;
             }
@@ -104,10 +108,14 @@ local int gz_comp(gz_statep state, int flush) {
         if (strm->avail_out == 0 || (flush != Z_NO_FLUSH &&
             (flush != Z_FINISH || ret == Z_STREAM_END))) {
             while (strm->next_out > state->x.next) {
+                errno = 0;
+                state->again = 0;
                 put = strm->next_out - state->x.next > (int)max ? max :
                       (unsigned)(strm->next_out - state->x.next);
                 writ = write(state->fd, state->x.next, put);
                 if (writ < 0) {
+                    if (errno == EAGAIN || errno == EWOULDBLOCK)
+                        state->again = 1;
                     gz_error(state, Z_ERRNO, zstrerror());
                     return -1;
                 }
@@ -140,9 +148,11 @@ local int gz_comp(gz_statep state, int flush) {
 }
 
 /* Compress state->skip (> 0) zeros to output.  Return -1 on a write error or
-   memory allocation failure by gz_comp(), or 0 on success. */
+   memory allocation failure by gz_comp(), or 0 on success. state->skip is
+   updated with the number of successfully written zeros, in case there is a
+   stall on a non-blocking write destination. */
 local int gz_zero(gz_statep state) {
-    int first;
+    int first, ret;
     unsigned n;
     z_streamp strm = &(state->strm);
 
@@ -161,18 +171,23 @@ local int gz_zero(gz_statep state) {
         }
         strm->avail_in = n;
         strm->next_in = state->in;
+        ret = gz_comp(state, Z_NO_FLUSH);
+        n -= strm->avail_in;
         state->x.pos += n;
-        if (gz_comp(state, Z_NO_FLUSH) == -1)
-            return -1;
         state->skip -= n;
+        if (ret == -1)
+            return -1;
     } while (state->skip);
     return 0;
 }
 
 /* Write len bytes from buf to file.  Return the number of bytes written.  If
-   the returned value is less than len, then there was an error. */
+   the returned value is less than len, then there was an error. If the error
+   was a non-blocking stall, then the number of bytes consumed is returned.
+   For any other error, 0 is returned. */
 local z_size_t gz_write(gz_statep state, voidpc buf, z_size_t len) {
     z_size_t put = len;
+    int ret;
 
     /* if len is zero, avoid unnecessary operations */
     if (len == 0)
@@ -189,7 +204,7 @@ local z_size_t gz_write(gz_statep state, voidpc buf, z_size_t len) {
     /* for small len, copy to input buffer, otherwise compress directly */
     if (len < state->size) {
         /* copy to input buffer, compress when full */
-        do {
+        for (;;) {
             unsigned have, copy;
 
             if (state->strm.avail_in == 0)
@@ -204,9 +219,11 @@ local z_size_t gz_write(gz_statep state, voidpc buf, z_size_t len) {
             state->x.pos += copy;
             buf = (const char *)buf + copy;
             len -= copy;
-            if (len && gz_comp(state, Z_NO_FLUSH) == -1)
-                return 0;
-        } while (len);
+            if (len == 0)
+                break;
+            if (gz_comp(state, Z_NO_FLUSH) == -1)
+                return state->again ? put - len : 0;
+        }
     }
     else {
         /* consume whatever's left in the input buffer */
@@ -217,13 +234,16 @@ local z_size_t gz_write(gz_statep state, voidpc buf, z_size_t len) {
         state->strm.next_in = (z_const Bytef *)buf;
         do {
             unsigned n = (unsigned)-1;
+
             if (n > len)
                 n = (unsigned)len;
             state->strm.avail_in = n;
+            ret = gz_comp(state, Z_NO_FLUSH);
+            n -= state->strm.avail_in;
             state->x.pos += n;
-            if (gz_comp(state, Z_NO_FLUSH) == -1)
-                return 0;
             len -= n;
+            if (ret == -1)
+                return state->again ? put - len : 0;
         } while (len);
     }
 
@@ -240,9 +260,10 @@ int ZEXPORT gzwrite(gzFile file, voidpc buf, unsigned len) {
         return 0;
     state = (gz_statep)file;
 
-    /* check that we're writing and that there's no error */
-    if (state->mode != GZ_WRITE || state->err != Z_OK)
+    /* check that we're writing and that there's no (serious) error */
+    if (state->mode != GZ_WRITE || (state->err != Z_OK && !state->again))
         return 0;
+    gz_error(state, Z_OK, NULL);
 
     /* since an int is returned, make sure len fits in one, otherwise return
        with an error (this avoids a flaw in the interface) */
@@ -266,9 +287,10 @@ z_size_t ZEXPORT gzfwrite(voidpc buf, z_size_t size, z_size_t nitems,
         return 0;
     state = (gz_statep)file;
 
-    /* check that we're writing and that there's no error */
-    if (state->mode != GZ_WRITE || state->err != Z_OK)
+    /* check that we're writing and that there's no (serious) error */
+    if (state->mode != GZ_WRITE || (state->err != Z_OK && !state->again))
         return 0;
+    gz_error(state, Z_OK, NULL);
 
     /* compute bytes to read -- error on overflow */
     len = nitems * size;
@@ -294,9 +316,10 @@ int ZEXPORT gzputc(gzFile file, int c) {
     state = (gz_statep)file;
     strm = &(state->strm);
 
-    /* check that we're writing and that there's no error */
-    if (state->mode != GZ_WRITE || state->err != Z_OK)
+    /* check that we're writing and that there's no (serious) error */
+    if (state->mode != GZ_WRITE || (state->err != Z_OK && !state->again))
         return -1;
+    gz_error(state, Z_OK, NULL);
 
     /* check for seek request */
     if (state->skip && gz_zero(state) == -1)
@@ -333,9 +356,10 @@ int ZEXPORT gzputs(gzFile file, const char *s) {
         return -1;
     state = (gz_statep)file;
 
-    /* check that we're writing and that there's no error */
-    if (state->mode != GZ_WRITE || state->err != Z_OK)
+    /* check that we're writing and that there's no (serious) error */
+    if (state->mode != GZ_WRITE || (state->err != Z_OK && !state->again))
         return -1;
+    gz_error(state, Z_OK, NULL);
 
     /* write string */
     len = strlen(s);
@@ -344,7 +368,28 @@ int ZEXPORT gzputs(gzFile file, const char *s) {
         return -1;
     }
     put = gz_write(state, s, len);
-    return put < len ? -1 : (int)len;
+    return len && put == 0 ? -1 : (int)put;
+}
+
+/* If the second half of the input buffer is occupied, write out the contents.
+   If there is any input remaining due to a non-blocking stall on write, move
+   it to the start of the buffer. Return true if this did not open up the
+   second half of the buffer.  state->err should be checked after this to
+   handle a gz_comp() error. */
+local int gz_vacate(gz_statep state) {
+    z_streamp strm;
+
+    strm = &(state->strm);
+    if ((strm->next_in + strm->avail_in) - state->in <= state->size)
+        return 0;
+    (void)gz_comp(state, Z_NO_FLUSH);
+    if (strm->avail_in == 0) {
+        strm->next_in = state->in;
+        return 0;
+    }
+    memmove(state->in, strm->next_in, strm->avail_in);
+    strm->next_in = state->in;
+    return strm->avail_in > state->size;
 }
 
 #if defined(STDC) || defined(Z_HAVE_STDARG_H)
@@ -352,8 +397,7 @@ int ZEXPORT gzputs(gzFile file, const char *s) {
 
 /* -- see zlib.h -- */
 int ZEXPORTVA gzvprintf(gzFile file, const char *format, va_list va) {
-    int len;
-    unsigned left;
+    int len, ret;
     char *next;
     gz_statep state;
     z_streamp strm;
@@ -364,9 +408,10 @@ int ZEXPORTVA gzvprintf(gzFile file, const char *format, va_list va) {
     state = (gz_statep)file;
     strm = &(state->strm);
 
-    /* check that we're writing and that there's no error */
-    if (state->mode != GZ_WRITE || state->err != Z_OK)
+    /* check that we're writing and that there's no (serious) error */
+    if (state->mode != GZ_WRITE || (state->err != Z_OK && !state->again))
         return Z_STREAM_ERROR;
+    gz_error(state, Z_OK, NULL);
 
     /* make sure we have some buffer space */
     if (state->size == 0 && gz_init(state) == -1)
@@ -377,8 +422,20 @@ int ZEXPORTVA gzvprintf(gzFile file, const char *format, va_list va) {
         return state->err;
 
     /* do the printf() into the input buffer, put length in len -- the input
-       buffer is double-sized just for this function, so there is guaranteed to
-       be state->size bytes available after the current contents */
+       buffer is double-sized just for this function, so there should be
+       state->size bytes available after the current contents */
+    ret = gz_vacate(state);
+    if (state->err) {
+        if (ret && state->again) {
+            /* There was a non-blocking stall on write, resulting in the part
+               of the second half of the output buffer being occupied.  Return
+               a Z_BUF_ERROR to let the application know that this gzprintf()
+               needs to be retried. */
+            gz_error(state, Z_BUF_ERROR, "stalled write on gzprintf");
+        }
+        if (!state->again)
+            return state->err;
+    }
     if (strm->avail_in == 0)
         strm->next_in = state->in;
     next = (char *)(state->in + (strm->next_in - state->in) + strm->avail_in);
@@ -404,18 +461,14 @@ int ZEXPORTVA gzvprintf(gzFile file, const char *format, va_list va) {
     if (len == 0 || (unsigned)len >= state->size || next[state->size - 1] != 0)
         return 0;
 
-    /* update buffer and position, compress first half if past that */
+    /* update buffer and position */
     strm->avail_in += (unsigned)len;
     state->x.pos += len;
-    if (strm->avail_in >= state->size) {
-        left = strm->avail_in - state->size;
-        strm->avail_in = state->size;
-        if (gz_comp(state, Z_NO_FLUSH) == -1)
-            return state->err;
-        memmove(state->in, state->in + state->size, left);
-        strm->next_in = state->in;
-        strm->avail_in = left;
-    }
+
+    /* write out buffer if more than half is occupied */
+    ret = gz_vacate(state);
+    if (state->err && !state->again)
+        return state->err;
     return len;
 }
 
@@ -451,9 +504,10 @@ int ZEXPORTVA gzprintf(gzFile file, const char *format, int a1, int a2, int a3,
     if (sizeof(int) != sizeof(void *))
         return Z_STREAM_ERROR;
 
-    /* check that we're writing and that there's no error */
-    if (state->mode != GZ_WRITE || state->err != Z_OK)
+    /* check that we're writing and that there's no (serious) error */
+    if (state->mode != GZ_WRITE || (state->err != Z_OK && !state->again))
         return Z_STREAM_ERROR;
+    gz_error(state, Z_OK, NULL);
 
     /* make sure we have some buffer space */
     if (state->size == 0 && gz_init(state) == -1)
@@ -466,6 +520,18 @@ int ZEXPORTVA gzprintf(gzFile file, const char *format, int a1, int a2, int a3,
     /* do the printf() into the input buffer, put length in len -- the input
        buffer is double-sized just for this function, so there is guaranteed to
        be state->size bytes available after the current contents */
+    ret = gz_vacate(state);
+    if (state->err) {
+        if (ret && state->again) {
+            /* There was a non-blocking stall on write, resulting in the part
+               of the second half of the output buffer being occupied.  Return
+               a Z_BUF_ERROR to let the application know that this gzprintf()
+               needs to be retried. */
+            gz_error(state, Z_BUF_ERROR, "stalled write on gzprintf");
+        }
+        if (!state->again)
+            return state->err;
+    }
     if (strm->avail_in == 0)
         strm->next_in = state->in;
     next = (char *)(strm->next_in + strm->avail_in);
@@ -499,15 +565,11 @@ int ZEXPORTVA gzprintf(gzFile file, const char *format, int a1, int a2, int a3,
     /* update buffer and position, compress first half if past that */
     strm->avail_in += len;
     state->x.pos += len;
-    if (strm->avail_in >= state->size) {
-        left = strm->avail_in - state->size;
-        strm->avail_in = state->size;
-        if (gz_comp(state, Z_NO_FLUSH) == -1)
-            return state->err;
-        memmove(state->in, state->in + state->size, left);
-        strm->next_in = state->in;
-        strm->avail_in = left;
-    }
+
+    /* write out buffer if more than half is occupied */
+    ret = gz_vacate(state);
+    if (state->err && !state->again)
+        return state->err;
     return (int)len;
 }
 
@@ -522,9 +584,10 @@ int ZEXPORT gzflush(gzFile file, int flush) {
         return Z_STREAM_ERROR;
     state = (gz_statep)file;
 
-    /* check that we're writing and that there's no error */
-    if (state->mode != GZ_WRITE || state->err != Z_OK)
+    /* check that we're writing and that there's no (serious) error */
+    if (state->mode != GZ_WRITE || (state->err != Z_OK && !state->again))
         return Z_STREAM_ERROR;
+    gz_error(state, Z_OK, NULL);
 
     /* check flush parameter */
     if (flush < 0 || flush > Z_FINISH)
@@ -550,9 +613,11 @@ int ZEXPORT gzsetparams(gzFile file, int level, int strategy) {
     state = (gz_statep)file;
     strm = &(state->strm);
 
-    /* check that we're writing and that there's no error */
-    if (state->mode != GZ_WRITE || state->err != Z_OK || state->direct)
+    /* check that we're compressing and that there's no (serious) error */
+    if (state->mode != GZ_WRITE || (state->err != Z_OK && !state->again) ||
+            state->direct)
         return Z_STREAM_ERROR;
+    gz_error(state, Z_OK, NULL);
 
     /* if no change is requested, then do nothing */
     if (level == state->level && strategy == state->strategy)

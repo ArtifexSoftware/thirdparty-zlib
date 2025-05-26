@@ -1349,13 +1349,13 @@ ZEXTERN gzFile ZEXPORT gzopen(const char *path, const char *mode);
    used to force transparent reading. Transparent reading is automatically
    performed if there is no gzip header at the start. Transparent reading can
    be disabled with the 'G' option, which will instead return an error if there
-   is no gzip header.
+   is no gzip header. 'N' will open the file in non-blocking mode.
 
-     "a" can be used instead of "w" to request that the gzip stream that will
-   be written be appended to the file.  "+" will result in an error, since
+     'a' can be used instead of 'w' to request that the gzip stream that will
+   be written be appended to the file.  '+' will result in an error, since
    reading and writing to the same gzip file is not supported.  The addition of
-   "x" when writing will create the file exclusively, which fails if the file
-   already exists.  On systems that support it, the addition of "e" when
+   'x' when writing will create the file exclusively, which fails if the file
+   already exists.  On systems that support it, the addition of 'e' when
    reading or writing will set the flag to close the file on an execve() call.
 
      These functions, as well as gzip, will read and decode a sequence of gzip
@@ -1374,14 +1374,22 @@ ZEXTERN gzFile ZEXPORT gzopen(const char *path, const char *mode);
    insufficient memory to allocate the gzFile state, or if an invalid mode was
    specified (an 'r', 'w', or 'a' was not provided, or '+' was provided).
    errno can be checked to determine if the reason gzopen failed was that the
-   file could not be opened.
+   file could not be opened. Note that if 'N' is in mode for non-blocking, the
+   open() itself can fail in order to not block. In that case gzopen() will
+   return NULL and errno will be EAGAIN or ENONBLOCK. The call to gzopen() can
+   then be re-tried. If the application would like to block on opening the
+   file, then it can use open() without O_NONBLOCK, and then gzdopen() with the
+   resulting file descriptor and 'N' in the mode, which will set it to non-
+   blocking.
 */
 
 ZEXTERN gzFile ZEXPORT gzdopen(int fd, const char *mode);
 /*
      Associate a gzFile with the file descriptor fd.  File descriptors are
    obtained from calls like open, dup, creat, pipe or fileno (if the file has
-   been previously opened with fopen).  The mode parameter is as in gzopen.
+   been previously opened with fopen).  The mode parameter is as in gzopen. An
+   'e' in mode will set fd's flag to close the file on an execve() call. An 'N'
+   in mode will set fd's non-blocking flag.
 
      The next call of gzclose on the returned gzFile will also close the file
    descriptor fd, just like fclose(fdopen(fd, mode)) closes the file descriptor
@@ -1451,6 +1459,11 @@ ZEXTERN int ZEXPORT gzread(gzFile file, voidp buf, unsigned len);
    stream.  Alternatively, gzerror can be used before gzclose to detect this
    case.
 
+     gzread can be used to read a gzip file on a non-blocking device. If the
+   input stalls and there is no uncompressed data to return, then gzread() will
+   return -1, and errno will be EAGAIN or EWOULDBLOCK. gzread() can then be
+   called again.
+
      gzread returns the number of uncompressed bytes actually read, less than
    len for end of file, or -1 for error.  If len is too large to fit in an int,
    then nothing is read, -1 is returned, and the error state is set to
@@ -1479,15 +1492,20 @@ ZEXTERN z_size_t ZEXPORT gzfread(voidp buf, z_size_t size, z_size_t nitems,
    multiple of size, then the final partial item is nevertheless read into buf
    and the end-of-file flag is set.  The length of the partial item read is not
    provided, but could be inferred from the result of gztell().  This behavior
-   is the same as the behavior of fread() implementations in common libraries,
-   but it prevents the direct use of gzfread() to read a concurrently written
-   file, resetting and retrying on end-of-file, when size is not 1.
+   is the same as that of fread() implementations in common libraries. This
+   could result in data loss if used with size != 1 when reading a concurrently
+   written file or a non-blocking file. In that case, use size == 1 or gzread()
+   instead.
 */
 
 ZEXTERN int ZEXPORT gzwrite(gzFile file, voidpc buf, unsigned len);
 /*
      Compress and write the len uncompressed bytes at buf to file. gzwrite
-   returns the number of uncompressed bytes written or 0 in case of error.
+   returns the number of uncompressed bytes written, or 0 in case of error or
+   if len is 0.  If the write destination is non-blocking, then gzwrite() may
+   return a number of bytes written that is not 0 and less than len.
+
+     If len does not fit in an int, then 0 is returned and nothing is written.
 */
 
 ZEXTERN z_size_t ZEXPORT gzfwrite(voidpc buf, z_size_t size,
@@ -1502,6 +1520,11 @@ ZEXTERN z_size_t ZEXPORT gzfwrite(voidpc buf, z_size_t size,
    if there was an error.  If the multiplication of size and nitems overflows,
    i.e. the product does not fit in a z_size_t, then nothing is written, zero
    is returned, and the error state is set to Z_STREAM_ERROR.
+
+     If writing a concurrently read file or a non-blocking file with size != 1,
+   a partial item could be written, with no way of knowing how much of it was
+   not written, resulting in data loss.  In that case, use size == 1 or
+   gzwrite() instead.
 */
 
 ZEXTERN int ZEXPORTVA gzprintf(gzFile file, const char *format, ...);
@@ -1517,6 +1540,9 @@ ZEXTERN int ZEXPORTVA gzprintf(gzFile file, const char *format, ...);
    zlib was compiled with the insecure functions sprintf() or vsprintf(),
    because the secure snprintf() or vsnprintf() functions were not available.
    This can be determined using zlibCompileFlags().
+
+     If a Z_BUF_ERROR is returned, then nothing was written due to a stall on
+   the non-blocking write destination.
 */
 
 ZEXTERN int ZEXPORT gzputs(gzFile file, const char *s);
@@ -1525,6 +1551,11 @@ ZEXTERN int ZEXPORT gzputs(gzFile file, const char *s);
    the terminating null character.
 
      gzputs returns the number of characters written, or -1 in case of error.
+   The number of characters written may be less than the length of the string
+   if the write destination is non-blocking.
+
+     If the length of the string does not fit in an int, then -1 is returned
+   and nothing is written.
 */
 
 ZEXTERN char * ZEXPORT gzgets(gzFile file, char *buf, int len);
@@ -1540,6 +1571,10 @@ ZEXTERN char * ZEXPORT gzgets(gzFile file, char *buf, int len);
    for end-of-file or in case of error. If some data was read before an error,
    then that data is returned until exhausted, after which the next call will
    return NULL to signal the error.
+
+     gzgets can be used on a file being concurrently written, and on a non-
+   blocking device, both as for gzread(). However lines may be broken in the
+   middle, leaving it up to the application to reassemble them as needed.
 */
 
 ZEXTERN int ZEXPORT gzputc(gzFile file, int c);
@@ -1550,14 +1585,19 @@ ZEXTERN int ZEXPORT gzputc(gzFile file, int c);
 
 ZEXTERN int ZEXPORT gzgetc(gzFile file);
 /*
-      Read and decompress one byte from file. gzgetc returns this byte or -1 in
+     Read and decompress one byte from file. gzgetc returns this byte or -1 in
    case of end of file or error. If some data was read before an error, then
    that data is returned until exhausted, after which the next call will return
    -1 to signal the error.
 
-      This is implemented as a macro for speed. As such, it does not do all of
+     This is implemented as a macro for speed. As such, it does not do all of
    the checking the other functions do. I.e. it does not check to see if file
    is NULL, nor whether the structure file points to has been clobbered or not.
+
+     gzgetc can be used to read a gzip file on a non-blocking device. If the
+   input stalls and there is no uncompressed data to return, then gzgetc() will
+   return -1, and errno will be EAGAIN or EWOULDBLOCK. gzread() can then be
+   called again.
 */
 
 ZEXTERN int ZEXPORT gzungetc(int c, gzFile file);
@@ -1666,8 +1706,11 @@ ZEXTERN int ZEXPORT gzdirect(gzFile file);
 
      If gzdirect() is used immediately after gzopen() or gzdopen() it will
    cause buffers to be allocated to allow reading the file to determine if it
-   is a gzip file.  Therefore if gzbuffer() is used, it should be called before
-   gzdirect().
+   is a gzip file. Therefore if gzbuffer() is used, it should be called before
+   gzdirect(). If the input is being written concurrently or the device is non-
+   blocking, then gzdirect() may give a different answer once four bytes of
+   input have been accumulated, which is what is needed to confirm or deny a
+   gzip header. Before this, gzdirect() will return true (1).
 
      When writing, gzdirect() returns true (1) if transparent writing was
    requested ("wT" for the gzopen() mode), or false (0) otherwise.  (Note:

@@ -52,7 +52,7 @@ char ZLIB_INTERNAL *gz_strwinerror(DWORD error) {
             msgbuf[chars] = 0;
         }
 
-        wcstombs(buf, msgbuf, chars + 1);       // assumes buf is big enough
+        wcstombs(buf, msgbuf, chars + 1);       /* assumes buf is big enough */
         LocalFree(msgbuf);
     }
     else {
@@ -76,6 +76,7 @@ local void gz_reset(gz_statep state) {
     }
     else                            /* for writing ... */
         state->reset = 0;           /* no deflateReset pending */
+    state->again = 0;               /* no stalled i/o yet */
     state->skip = 0;                /* no seek request pending */
     gz_error(state, Z_OK, NULL);    /* clear error */
     state->x.pos = 0;               /* no uncompressed data yet */
@@ -86,10 +87,7 @@ local void gz_reset(gz_statep state) {
 local gzFile gz_open(const void *path, int fd, const char *mode) {
     gz_statep state;
     z_size_t len;
-    int oflag;
-#ifdef O_CLOEXEC
-    int cloexec = 0;
-#endif
+    int oflag = 0;
 #ifdef O_EXCL
     int exclusive = 0;
 #endif
@@ -135,7 +133,7 @@ local gzFile gz_open(const void *path, int fd, const char *mode) {
                 break;
 #ifdef O_CLOEXEC
             case 'e':
-                cloexec = 1;
+                oflag |= O_CLOEXEC;
                 break;
 #endif
 #ifdef O_EXCL
@@ -158,6 +156,11 @@ local gzFile gz_open(const void *path, int fd, const char *mode) {
             case 'G':
                 state->direct = -1;
                 break;
+#ifdef O_NONBLOCK
+            case 'N':
+                oflag |= O_NONBLOCK;
+                break;
+#endif
             case 'T':
                 state->direct = 1;
                 break;
@@ -223,15 +226,12 @@ local gzFile gz_open(const void *path, int fd, const char *mode) {
     }
 
     /* compute the flags for open() */
-    oflag =
+    oflag |=
 #ifdef O_LARGEFILE
         O_LARGEFILE |
 #endif
 #ifdef O_BINARY
         O_BINARY |
-#endif
-#ifdef O_CLOEXEC
-        (cloexec ? O_CLOEXEC : 0) |
 #endif
         (state->mode == GZ_READ ?
          O_RDONLY :
@@ -250,8 +250,17 @@ local gzFile gz_open(const void *path, int fd, const char *mode) {
     else if (fd == -2)
         state->fd = _wopen(path, oflag, _S_IREAD | _S_IWRITE);
 #endif
-    else
+    else {
+#ifdef O_NONBLOCK
+        if (oflag & O_NONBLOCK)
+            fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
+#endif
+#ifdef O_CLOEXEC
+        if (oflag & O_CLOEXEC)
+            fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | O_CLOEXEC);
+#endif
         state->fd = fd;
+    }
     if (state->fd == -1) {
         free(state->path);
         free(state);
@@ -552,7 +561,7 @@ void ZLIB_INTERNAL gz_error(gz_statep state, int err, const char *msg) {
     }
 
     /* if fatal, set state->x.have to 0 so that the gzgetc() macro fails */
-    if (err != Z_OK && err != Z_BUF_ERROR)
+    if (err != Z_OK && err != Z_BUF_ERROR && !state->again)
         state->x.have = 0;
 
     /* set error code, and if no message, then done */
@@ -589,6 +598,7 @@ unsigned ZLIB_INTERNAL gz_intmax(void) {
     return INT_MAX;
 #else
     unsigned p = 1, q;
+
     do {
         q = p;
         p <<= 1;
