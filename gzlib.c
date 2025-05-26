@@ -104,6 +104,7 @@ local gzFile gz_open(const void *path, int fd, const char *mode) {
         return NULL;
     state->size = 0;            /* no buffers allocated yet */
     state->want = GZBUFSIZE;    /* requested buffer size */
+    state->err = Z_OK;          /* no error yet */
     state->msg = NULL;          /* no error message yet */
 
     /* interpret mode */

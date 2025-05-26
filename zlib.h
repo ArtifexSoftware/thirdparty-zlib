@@ -1454,7 +1454,8 @@ ZEXTERN int ZEXPORT gzread(gzFile file, voidp buf, unsigned len);
      gzread returns the number of uncompressed bytes actually read, less than
    len for end of file, or -1 for error.  If len is too large to fit in an int,
    then nothing is read, -1 is returned, and the error state is set to
-   Z_STREAM_ERROR.
+   Z_STREAM_ERROR. If some data was read before an error, then that data is
+   returned until exhausted, after which the next call will signal the error.
 */
 
 ZEXTERN z_size_t ZEXPORT gzfread(voidp buf, z_size_t size, z_size_t nitems,
@@ -1536,8 +1537,9 @@ ZEXTERN char * ZEXPORT gzgets(gzFile file, char *buf, int len);
    left untouched.
 
      gzgets returns buf which is a null-terminated string, or it returns NULL
-   for end-of-file or in case of error.  If there was an error, the contents at
-   buf are indeterminate.
+   for end-of-file or in case of error. If some data was read before an error,
+   then that data is returned until exhausted, after which the next call will
+   return NULL to signal the error.
 */
 
 ZEXTERN int ZEXPORT gzputc(gzFile file, int c);
@@ -1548,11 +1550,14 @@ ZEXTERN int ZEXPORT gzputc(gzFile file, int c);
 
 ZEXTERN int ZEXPORT gzgetc(gzFile file);
 /*
-     Read and decompress one byte from file.  gzgetc returns this byte or -1
-   in case of end of file or error.  This is implemented as a macro for speed.
-   As such, it does not do all of the checking the other functions do.  I.e.
-   it does not check to see if file is NULL, nor whether the structure file
-   points to has been clobbered or not.
+      Read and decompress one byte from file. gzgetc returns this byte or -1 in
+   case of end of file or error. If some data was read before an error, then
+   that data is returned until exhausted, after which the next call will return
+   -1 to signal the error.
+
+      This is implemented as a macro for speed. As such, it does not do all of
+   the checking the other functions do. I.e. it does not check to see if file
+   is NULL, nor whether the structure file points to has been clobbered or not.
 */
 
 ZEXTERN int ZEXPORT gzungetc(int c, gzFile file);
