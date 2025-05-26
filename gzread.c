@@ -248,7 +248,7 @@ local int gz_fetch(gz_statep state) {
 }
 
 /* Skip state->skip (> 0) uncompressed bytes of output.  Return -1 on error, 0
-  on success. */
+   on success. */
 local int gz_skip(gz_statep state) {
     unsigned n;
 
@@ -257,8 +257,8 @@ local int gz_skip(gz_statep state) {
         /* skip over whatever is in output buffer */
         if (state->x.have) {
             n = GT_OFF(state->x.have) ||
-            (z_off64_t)state->x.have > state->skip ?
-            (unsigned)state->skip : state->x.have;
+                (z_off64_t)state->x.have > state->skip ?
+                (unsigned)state->skip : state->x.have;
             state->x.have -= n;
             state->x.next += n;
             state->x.pos += n;
