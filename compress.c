@@ -28,6 +28,10 @@ int ZEXPORT compress2_z(Bytef *dest, z_size_t *destLen, const Bytef *source,
     const uInt max = (uInt)-1;
     z_size_t left;
 
+    if ((sourceLen > 0 && source == NULL) ||
+        destLen == NULL || (*destLen > 0 && dest == NULL))
+        return Z_STREAM_ERROR;
+
     left = *destLen;
     *destLen = 0;
 
