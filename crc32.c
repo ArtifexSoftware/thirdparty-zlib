@@ -32,6 +32,10 @@
 
 #include "zutil.h"      /* for Z_U4, Z_U8, z_crc_t, and FAR definitions */
 
+#ifdef HAVE_S390X_VX
+#  include "contrib/crc32vx/crc32_vx_hooks.h"
+#endif
+
  /*
   A CRC of a message is computed on N braids of words in the message, where
   each word consists of W bytes (4 or 8). If N is 3, for example, then three
@@ -942,6 +946,9 @@ unsigned long ZEXPORT crc32_z(unsigned long crc, const unsigned char FAR *buf,
 /* ========================================================================= */
 unsigned long ZEXPORT crc32(unsigned long crc, const unsigned char FAR *buf,
                             uInt len) {
+    #ifdef HAVE_S390X_VX
+    return crc32_z_hook(crc, buf, len);
+    #endif
     return crc32_z(crc, buf, len);
 }
 
