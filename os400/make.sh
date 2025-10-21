@@ -251,7 +251,7 @@ then    CMD="CPY OBJ('${HFILE}') TOOBJ('${DEST}')"
         system "CHGPFM FILE(${TARGETLIB}/H) MBR(${MBR}) SRCTYPE(RPGLE)"
 fi
 
-HFILE="${SCRIPTDIR}/zlibfree"
+HFILE="${SCRIPTDIR}/zlibfree.rpgle"
 MBR="ZLIBFREE"
 DEST="${SRCPF}/${MBR}.MBR"
 
