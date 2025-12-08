@@ -198,31 +198,33 @@ case `$cc -v 2>&1` in
     clang=1 ;;
 esac
 
-if test "$clang" -eq 1; then
-  if test "$cc" = "clang"; then
-    if which -s llvm-cov; then
-      GCOV="llvm-cov"
-      LLVM_GCOV_FLAG="gcov"
-      GCOV="llvm-cov"
-      LLVM_GCOV_FLAG="gcov"
-      echo "Using ${GCOV} for coverage"
+if test $cover -eq 1; then
+  if test "$clang" -eq 1; then
+    if test "$cc" = "clang"; then
+	  if which -s llvm-cov; then
+	    GCOV="llvm-cov"
+	    LLVM_GCOV_FLAG="gcov"
+	    GCOV="llvm-cov"
+	    LLVM_GCOV_FLAG="gcov"
+	    echo "Using ${GCOV} for coverage"
+	  else
+	    cover=0
+	    GCOV=""
+	    LLVM_GCOV_FLAG=""
+	    echo "Deactivating cover as no suitable gcov can be found"
+	  fi
     else
-      cover=0
-      GCOV=""
-      LLVM_GCOV_FLAG=""
-      echo "Deactivating cover as no suitable gcov can be found"
-    fi
-  else
-    clangV=`echo "$cc" | sed -e 's/^.*-//'`
-    if which -s llvm-cov-${clangV}; then
-      GCOV="llvm-cov-${clangV}"
-      LLVM_GCOV_FLAG="gcov"
-      echo "Using ${GCOV} for coverage"
-    else
-      cover=0
-      GCOV=""
-      LLVM_GCOV_FLAG=""
-      echo "Deactivating cover as no suitable gcov can be found"
+	  clangV=`echo "$cc" | sed -e 's/^.*-//'`
+	  if which -s llvm-cov-${clangV}; then
+	    GCOV="llvm-cov-${clangV}"
+	    LLVM_GCOV_FLAG="gcov"
+	    echo "Using ${GCOV} for coverage"
+	  else
+	    cover=0
+	    GCOV=""
+	    LLVM_GCOV_FLAG=""
+	    echo "Deactivating cover as no suitable gcov can be found"
+	  fi
     fi
   fi
 fi
