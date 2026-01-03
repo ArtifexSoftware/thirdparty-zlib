@@ -258,15 +258,15 @@ The latest zlib FAQ is at http://zlib.net/zlib_faq.html
 33. Does zlib have any security vulnerabilities?
 
     The only one that we are aware of is potentially in gzprintf().  If zlib is
-    compiled to use sprintf() or vsprintf(), then there is no protection
-    against a buffer overflow of an 8K string space (or other value as set by
-    gzbuffer()), other than the caller of gzprintf() assuring that the output
-    will not exceed 8K.  On the other hand, if zlib is compiled to use
-    snprintf() or vsnprintf(), which should normally be the case, then there is
-    no vulnerability.  The ./configure script will display warnings if an
-    insecure variation of sprintf() will be used by gzprintf().  Also the
-    zlibCompileFlags() function will return information on what variant of
-    sprintf() is used by gzprintf().
+    compiled to use sprintf() or vsprintf(), which requires that ZLIB_INSECURE
+    be defined, then there is no protection against a buffer overflow of an 8K
+    string space (or other value as set by gzbuffer()), other than the caller
+    of gzprintf() assuring that the output will not exceed 8K.  On the other
+    hand, if zlib is compiled to use snprintf() or vsnprintf(), which should
+    normally be the case, then there is no vulnerability.  The ./configure
+    script will display warnings if an insecure variation of sprintf() will be
+    used by gzprintf().  Also the zlibCompileFlags() function will return
+    information on what variant of sprintf() is used by gzprintf().
 
     If you don't have snprintf() or vsnprintf() and would like one, you can
     find a good portable implementation in stb_sprintf.h here:
