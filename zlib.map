@@ -102,3 +102,8 @@ ZLIB_1.2.12 {
 ZLIB_1.3.1.2 {
 	deflateUsed;
 } ZLIB_1.2.12;
+
+ZLIB_1.3.2 {
+    compressBound_z;
+	deflateBound_z;
+} ZLIB_1.3.1.2;

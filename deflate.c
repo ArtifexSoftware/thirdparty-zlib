@@ -839,24 +839,30 @@ int ZEXPORT deflateTune(z_streamp strm, int good_length, int max_lazy,
  *
  * Shifts are used to approximate divisions, for speed.
  */
-uLong ZEXPORT deflateBound(z_streamp strm, uLong sourceLen) {
+z_size_t ZEXPORT deflateBound_z(z_streamp strm, z_size_t sourceLen) {
     deflate_state *s;
-    uLong fixedlen, storelen, wraplen;
+    z_size_t fixedlen, storelen, wraplen, bound;
 
     /* upper bound for fixed blocks with 9-bit literals and length 255
        (memLevel == 2, which is the lowest that may not use stored blocks) --
        ~13% overhead plus a small constant */
     fixedlen = sourceLen + (sourceLen >> 3) + (sourceLen >> 8) +
                (sourceLen >> 9) + 4;
+    if (fixedlen < sourceLen)
+        fixedlen = (z_size_t)-1;
 
     /* upper bound for stored blocks with length 127 (memLevel == 1) --
        ~4% overhead plus a small constant */
     storelen = sourceLen + (sourceLen >> 5) + (sourceLen >> 7) +
                (sourceLen >> 11) + 7;
+    if (storelen < sourceLen)
+        storelen = (z_size_t)-1;
 
     /* if can't get parameters, return larger bound plus a wrapper */
-    if (deflateStateCheck(strm))
-        return (fixedlen > storelen ? fixedlen : storelen) + 18;
+    if (deflateStateCheck(strm)) {
+        bound = fixedlen > storelen ? fixedlen : storelen;
+        return bound + 18 < bound ? (z_size_t)-1 : bound + 18;
+    }
 
     /* compute wrapper length */
     s = strm->state;
@@ -894,14 +900,21 @@ uLong ZEXPORT deflateBound(z_streamp strm, uLong sourceLen) {
     }
 
     /* if not default parameters, return one of the conservative bounds */
-    if (s->w_bits != 15 || s->hash_bits != 8 + 7)
-        return (s->w_bits <= s->hash_bits && s->level ? fixedlen : storelen) +
-               wraplen;
+    if (s->w_bits != 15 || s->hash_bits != 8 + 7) {
+        bound = s->w_bits <= s->hash_bits && s->level ? fixedlen :
+                                                        storelen;
+        return bound + wraplen < bound ? (z_size_t)-1 : bound + wraplen;
+    }
 
     /* default settings: return tight bound for that case -- ~0.03% overhead
        plus a small constant */
-    return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) +
-           (sourceLen >> 25) + 13 - 6 + wraplen;
+    bound = sourceLen + (sourceLen >> 12) + (sourceLen >> 14) +
+            (sourceLen >> 25) + 13 - 6 + wraplen;
+    return bound < sourceLen ? (z_size_t)-1 : bound;
+}
+uLong ZEXPORT deflateBound(z_streamp strm, uLong sourceLen) {
+    z_size_t bound = deflateBound_z(strm, sourceLen);
+    return (uLong)bound != bound ? (uLong)-1 : (uLong)bound;
 }
 
 /* =========================================================================

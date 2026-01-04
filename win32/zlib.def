@@ -14,6 +14,7 @@ EXPORTS
     deflateParams
     deflateTune
     deflateBound
+    deflateBound_z
     deflatePending
     deflateUsed
     deflatePrime
@@ -34,6 +35,7 @@ EXPORTS
     compress
     compress2
     compressBound
+    compressBound_z
     uncompress
     uncompress2
     gzopen

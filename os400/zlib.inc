@@ -127,6 +127,9 @@
      D compressBound   PR            10U 0 extproc('compressBound')
      D  sourceLen                    10U 0 value
       *
+     D compressBound_z PR            20U 0 extproc('compressBound')
+     D  sourceLen                    20U 0 value
+      *
      D uncompress      PR            10I 0 extproc('uncompress')
      D  dest                      65535    options(*varsize)                    Destination buffer
      D  destLen                      10U 0                                      Destination length
@@ -365,6 +368,10 @@
      D deflateBound    PR            10U 0 extproc('deflateBound')              Change level & strat
      D  strm                               like(z_stream)                       Compression stream
      D  sourcelen                    10U 0 value                                Compression level
+      *
+     D deflateBound_z  PR            20U 0 extproc('deflateBound')              Change level & strat
+     D  strm                               like(z_stream)                       Compression stream
+     D  sourcelen                    20U 0 value                                Compression level
       *
      D deflatePending  PR            10I 0 extproc('deflatePending')            Change level & strat
      D  strm                               like(z_stream)                       Compression stream

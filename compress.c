@@ -69,7 +69,12 @@ int ZEXPORT compress(Bytef *dest, uLongf *destLen, const Bytef *source,
      If the default memLevel or windowBits for deflateInit() is changed, then
    this function needs to be updated.
  */
+z_size_t ZEXPORT compressBound_z(z_size_t sourceLen) {
+    z_size_t bound = sourceLen + (sourceLen >> 12) + (sourceLen >> 14) +
+                     (sourceLen >> 25) + 13;
+    return bound < sourceLen ? (z_size_t)-1 : bound;
+}
 uLong ZEXPORT compressBound(uLong sourceLen) {
-    return sourceLen + (sourceLen >> 12) + (sourceLen >> 14) +
-           (sourceLen >> 25) + 13;
+    z_size_t bound = compressBound_z(sourceLen);
+    return (uLong)bound != bound ? (uLong)-1 : (uLong)bound;
 }

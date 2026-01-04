@@ -765,8 +765,8 @@ ZEXTERN int ZEXPORT deflateTune(z_streamp strm,
    returns Z_OK on success, or Z_STREAM_ERROR for an invalid deflate stream.
  */
 
-ZEXTERN uLong ZEXPORT deflateBound(z_streamp strm,
-                                   uLong sourceLen);
+ZEXTERN uLong ZEXPORT deflateBound(z_streamp strm, uLong sourceLen);
+ZEXTERN z_size_t ZEXPORT deflateBound_z(z_streamp strm, z_size_t sourceLen);
 /*
      deflateBound() returns an upper bound on the compressed size after
    deflation of sourceLen bytes.  It must be called after deflateInit() or
@@ -778,6 +778,9 @@ ZEXTERN uLong ZEXPORT deflateBound(z_streamp strm,
    to return Z_STREAM_END.  Note that it is possible for the compressed size to
    be larger than the value returned by deflateBound() if flush options other
    than Z_FINISH or Z_NO_FLUSH are used.
+
+     delfateBound_z() is the same, but takes and returns a size_t length for
+   those systems on which a long is 32 bits.
 */
 
 ZEXTERN int ZEXPORT deflatePending(z_streamp strm,
@@ -1293,10 +1296,14 @@ ZEXTERN int ZEXPORT compress2(Bytef *dest,   uLongf *destLen,
 */
 
 ZEXTERN uLong ZEXPORT compressBound(uLong sourceLen);
+ZEXTERN z_size_t ZEXPORT compressBound_z(z_size_t sourceLen);
 /*
      compressBound() returns an upper bound on the compressed size after
    compress() or compress2() on sourceLen bytes.  It would be used before a
    compress() or compress2() call to allocate the destination buffer.
+
+     compressBound_z() is the same, but takes and returns a size_t length for
+   those systems on which a long is 32 bits.
 */
 
 ZEXTERN int ZEXPORT uncompress(Bytef *dest,   uLongf *destLen,
