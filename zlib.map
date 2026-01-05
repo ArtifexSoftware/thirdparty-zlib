@@ -11,9 +11,11 @@ ZLIB_1.2.0 {
     inflate_copyright;
     inflate_fast;
     inflate_table;
+    inflate_fixed;
     zcalloc;
     zcfree;
     z_errmsg;
+    z_once;
     gz_error;
     gz_intmax;
     _*;

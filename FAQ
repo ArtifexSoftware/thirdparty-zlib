@@ -156,6 +156,10 @@ The latest zlib FAQ is at http://zlib.net/zlib_faq.html
     library memory allocation routines by default.  zlib's *Init* functions
     allow for the application to provide custom memory allocation routines.
 
+    If the non-default BUILDFIXED or DYNAMIC_CRC_TABLE defines are used on a
+    system without atomics (e.g. pre-C11), then inflate() and crc32() will not
+    be thread safe.
+
     Of course, you should only operate on any given zlib or gzip stream from a
     single thread at a time.
 

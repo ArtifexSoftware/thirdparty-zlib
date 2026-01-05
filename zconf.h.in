@@ -131,6 +131,7 @@
 #  define inflate_copyright     z_inflate_copyright
 #  define inflate_fast          z_inflate_fast
 #  define inflate_table         z_inflate_table
+#  define inflate_fixed         z_inflate_fixed
 #  ifndef Z_SOLO
 #    define uncompress            z_uncompress
 #    define uncompress2           z_uncompress2

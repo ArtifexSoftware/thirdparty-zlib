@@ -254,4 +254,30 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #define ZSWAP32(q) ((((q) >> 24) & 0xff) + (((q) >> 8) & 0xff00) + \
                     (((q) & 0xff00) << 8) + (((q) & 0xff) << 24))
 
+#ifdef MAKEFIXED
+#  ifndef BUILDFIXED
+#    define BUILDFIXED
+#  endif
+#endif
+#if defined(BUILDFIXED) || defined(DYNAMIC_CRC_TABLE)
+/* Structure for z_once(), which must be initialized with Z_ONCE_INIT. */
+typedef struct z_once_s z_once_t;
+void ZLIB_INTERNAL z_once(z_once_t *state, void (*init)(void));
+#if defined(__STDC__) && __STDC_VERSION__ >= 201112L && \
+    !defined(__STDC_NO_ATOMICS__)
+#include <stdatomic.h>
+struct z_once_s {
+    atomic_flag begun;
+    atomic_int done;
+};
+#define Z_ONCE_INIT {ATOMIC_FLAG_INIT, 0}
+#else   /* no atomics! */
+struct z_once_s {
+    volatile int begun;
+    volatile int done;
+};
+#define Z_ONCE_INIT {0, 0}
+#endif
+#endif
+
 #endif /* ZUTIL_H */
