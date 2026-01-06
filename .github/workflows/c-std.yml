@@ -50,12 +50,18 @@ jobs:
         std:
           - name: c89
             value: c89
+            compiler-opt: -DZIP_INSECURE
+            cmake-opt: -DZIP_INSECURE
 
           - name: gnu89
             value: gnu89
+            compiler-opt: -DZIP_INSECURE
+            cmake-opt: -DZIP_INSECURE
 
           - name: c94
             value: iso9899:199409
+            compiler-opt: -DZIP_INSECURE
+            cmake-opt: -DZIP_INSECURE
 
           - name: c99
             value: c99
