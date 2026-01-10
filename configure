@@ -92,6 +92,7 @@ warn=0
 debug=0
 address=0
 memory=0
+undefined=0
 insecure=0
 unknown=0
 old_cc="$CC"
@@ -147,6 +148,7 @@ case "$1" in
     --sanitize) address=1; shift ;;
     --address) address=1; shift ;;
     --memory) memory=1; shift ;;
+    --undefined) undefined=1; shift ;;
     --insecure) insecure=1; shift ;;
     *) unknown=1; echo "unknown option ignored: $1" | tee -a configure.log; shift;;
     esac
@@ -257,6 +259,9 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
   fi
   if test $memory -eq 1; then
     CFLAGS="${CFLAGS} -g -fsanitize=memory -fno-omit-frame-pointer"
+  fi
+  if test $undefined -eq 1; then
+    CFLAGS="${CFLAGS} -g -fsanitize=undefined -fno-omit-frame-pointer"
   fi
   if test $insecure -eq 1; then
     CFLAGS="${CFLAGS} -DZLIB_INSECURE"
