@@ -33,6 +33,8 @@
 #  ifndef Z_SOLO
 #    define compress              z_compress
 #    define compress2             z_compress2
+#    define compress_z            z_compress_z
+#    define compress2_z           z_compress2_z
 #    define compressBound         z_compressBound
 #    define compressBound_z       z_compressBound_z
 #  endif
@@ -135,6 +137,8 @@
 #  ifndef Z_SOLO
 #    define uncompress            z_uncompress
 #    define uncompress2           z_uncompress2
+#    define uncompress_z          z_uncompress_z
+#    define uncompress2_z         z_uncompress2_z
 #  endif
 #  define zError                z_zError
 #  ifndef Z_SOLO

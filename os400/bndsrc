@@ -136,5 +136,9 @@ STRPGMEXP PGMLVL(*CURRENT) SIGNATURE('ZLIB')
 
   EXPORT SYMBOL("compressBound_z")
   EXPORT SYMBOL("deflateBound_z")
+  EXPORT SYMBOL("compress_z")
+  EXPORT SYMBOL("compress2_z")
+  EXPORT SYMBOL("uncompress_z")
+  EXPORT SYMBOL("uncompress2_z")
 
 ENDPGMEXP

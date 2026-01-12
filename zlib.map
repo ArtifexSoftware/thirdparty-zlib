@@ -108,4 +108,8 @@ ZLIB_1.3.1.2 {
 ZLIB_1.3.2 {
     compressBound_z;
 	deflateBound_z;
+	compress_z;
+	compress2_z;
+	uncompress_z;
+	uncompress2_z;
 } ZLIB_1.3.1.2;
