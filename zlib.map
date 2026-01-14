@@ -11,11 +11,9 @@ ZLIB_1.2.0 {
     inflate_copyright;
     inflate_fast;
     inflate_table;
-    inflate_fixed;
     zcalloc;
     zcfree;
     z_errmsg;
-    z_once;
     gz_error;
     gz_intmax;
     _*;
@@ -106,10 +104,14 @@ ZLIB_1.3.1.2 {
 } ZLIB_1.2.12;
 
 ZLIB_1.3.2 {
+  global:
     compressBound_z;
 	deflateBound_z;
 	compress_z;
 	compress2_z;
 	uncompress_z;
 	uncompress2_z;
+  local:
+    inflate_fixed;
+    z_once;
 } ZLIB_1.3.1.2;
