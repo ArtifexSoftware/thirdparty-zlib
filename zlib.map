@@ -113,5 +113,4 @@ ZLIB_1.3.2 {
 	uncompress2_z;
   local:
     inflate_fixed;
-    z_once;
 } ZLIB_1.3.1.2;

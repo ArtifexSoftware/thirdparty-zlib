@@ -3,6 +3,15 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
+#ifdef MAKEFIXED
+#  ifndef BUILDFIXED
+#    define BUILDFIXED
+#  endif
+#endif
+#ifdef BUILDFIXED
+#  define Z_ONCE
+#endif
+
 #include "zutil.h"
 #include "inftrees.h"
 #include "inflate.h"

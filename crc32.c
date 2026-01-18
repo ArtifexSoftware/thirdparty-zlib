@@ -24,8 +24,11 @@
 #  include <stdio.h>
 #  ifndef DYNAMIC_CRC_TABLE
 #    define DYNAMIC_CRC_TABLE
-#  endif /* !DYNAMIC_CRC_TABLE */
-#endif /* MAKECRCH */
+#  endif
+#endif
+#ifdef DYNAMIC_CRC_TABLE
+#  define Z_ONCE
+#endif
 
 #include "zutil.h"      /* for Z_U4, Z_U8, z_crc_t, and FAR definitions */
 
