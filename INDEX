@@ -23,7 +23,6 @@ zlib2ansi       perl script to convert source files for C++ compilation
 amiga/          makefiles for Amiga SAS C
 doc/            documentation for formats and algorithms
 msdos/          makefiles for MSDOS
-nintendods/     makefile for Nintendo DS
 old/            makefiles for various architectures and zlib documentation
                 files that have not yet been updated for zlib 1.2.x
 os400/          makefiles for OS/400
