@@ -1252,7 +1252,7 @@ local int Write_LocalFileHeader(zip64_internal* zi, const char* filename, uInt s
 // of bytes examined in order to determine it was bad. Or if minus the return
 // code is one less than len, then at least one more byte than provided would
 // be needed to complete the code.
-local inline int utf8len(unsigned char const *str, size_t len) {
+local int utf8len(unsigned char const *str, size_t len) {
     return
         len == 0 ? -1 :                         // empty input
         str[0] < 0x80 ? 1 :                     // good one-byte
