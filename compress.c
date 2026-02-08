@@ -56,7 +56,7 @@ int ZEXPORT compress2_z(Bytef *dest, z_size_t *destLen, const Bytef *source,
         err = deflate(&stream, sourceLen ? Z_NO_FLUSH : Z_FINISH);
     } while (err == Z_OK);
 
-    *destLen = stream.next_out - dest;
+    *destLen = (z_size_t)(stream.next_out - dest);
     deflateEnd(&stream);
     return err == Z_STREAM_END ? Z_OK : err;
 }
