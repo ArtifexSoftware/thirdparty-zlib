@@ -145,7 +145,7 @@ case "$1" in
     --sysconfdir=*) echo "ignored option: --sysconfdir" | tee -a configure.log; shift ;;
     --localstatedir=*) echo "ignored option: --localstatedir" | tee -a configure.log; shift ;;
     -c* | --const) zconst=1; shift ;;
-    -w* | --warn) warn=1; shift ;;
+    -w* | --warn) warn=$((warn + 1)); shift ;;
     -d* | --debug) debug=1; shift ;;
     --sanitize) address=1; shift ;;
     --address) address=1; shift ;;
@@ -251,11 +251,14 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
     CFLAGS="${CFLAGS} -m64"
     SFLAGS="${SFLAGS} -m64"
   fi
-  if test "$warn" -eq 1; then
+  if test "$warn" -ge 1; then
     CFLAGS="${CFLAGS} -Wall -Wextra"
+    if test "$warn" -ge 2; then
+      CFLAGS="${CFLAGS} -Wconversion -Wshadow -Wundef"
+    fi
   fi
   if test "$zconst" -eq 1; then
-    if test "$warn" -eq 1; then
+    if test "$warn" -ge 1; then
       CFLAGS="${CFLAGS} -Wcast-qual"
     fi
     CFLAGS="${CFLAGS} -DZLIB_CONST"
