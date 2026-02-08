@@ -252,11 +252,13 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
     SFLAGS="${SFLAGS} -m64"
   fi
   if test "$warn" -eq 1; then
-    if test "$zconst" -eq 1; then
-      CFLAGS="${CFLAGS} -Wall -Wextra -Wcast-qual -DZLIB_CONST"
-    else
-      CFLAGS="${CFLAGS} -Wall -Wextra"
+    CFLAGS="${CFLAGS} -Wall -Wextra"
+  fi
+  if test "$zconst" -eq 1; then
+    if test "$warn" -eq 1; then
+      CFLAGS="${CFLAGS} -Wcast-qual"
     fi
+    CFLAGS="${CFLAGS} -DZLIB_CONST"
   fi
   if test $address -eq 1; then
     CFLAGS="${CFLAGS} -g -fsanitize=address -fno-omit-frame-pointer"
