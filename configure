@@ -476,6 +476,13 @@ tryboth()
 cat > $test.c << EOF
 int foo() { return 0; }
 EOF
+echo "Checking for compiler..." >> configure.log
+if try $CC -c $test.c; then
+  :
+else
+  echo "Missing or broken C compiler." | tee -a configure.log
+  leave 1
+fi
 echo "Checking for obsessive-compulsive compiler options..." >> configure.log
 if try $CC -c $CFLAGS $test.c; then
   :
