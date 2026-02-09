@@ -261,7 +261,14 @@ local void fill_window(deflate_state *s) {
         more = (unsigned)(s->window_size -(ulg)s->lookahead -(ulg)s->strstart);
 
         /* Deal with !@#$% 64K limit: */
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable: 4127)
+#endif
         if (sizeof(int) <= 2) {
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
             if (more == 0 && s->strstart == 0 && s->lookahead == 0) {
                 more = wsize;
 
@@ -715,10 +722,15 @@ int ZEXPORT deflateSetHeader(z_streamp strm, gz_headerp head) {
 /* ========================================================================= */
 int ZEXPORT deflatePending(z_streamp strm, unsigned *pending, int *bits) {
     if (deflateStateCheck(strm)) return Z_STREAM_ERROR;
-    if (pending != Z_NULL)
-        *pending = strm->state->pending;
     if (bits != Z_NULL)
         *bits = strm->state->bi_valid;
+    if (pending != Z_NULL) {
+        *pending = (unsigned)strm->state->pending;
+        if (*pending != strm->state->pending) {
+            *pending = (unsigned)-1;
+            return Z_BUF_ERROR;
+        }
+    }
     return Z_OK;
 }
 
@@ -941,8 +953,8 @@ local void flush_pending(z_streamp strm) {
     deflate_state *s = strm->state;
 
     _tr_flush_bits(s);
-    len = s->pending;
-    if (len > strm->avail_out) len = strm->avail_out;
+    len = s->pending > strm->avail_out ? strm->avail_out :
+                                         (unsigned)s->pending;
     if (len == 0) return;
 
     zmemcpy(strm->next_out, s->pending_out, len);
@@ -962,8 +974,8 @@ local void flush_pending(z_streamp strm) {
 #define HCRC_UPDATE(beg) \
     do { \
         if (s->gzhead->hcrc && s->pending > (beg)) \
-            strm->adler = crc32(strm->adler, s->pending_buf + (beg), \
-                                s->pending - (beg)); \
+            strm->adler = crc32_z(strm->adler, s->pending_buf + (beg), \
+                                  s->pending - (beg)); \
     } while (0)
 
 /* ========================================================================= */
@@ -1097,8 +1109,8 @@ int ZEXPORT deflate(z_streamp strm, int flush) {
                 put_byte(s, (s->gzhead->extra_len >> 8) & 0xff);
             }
             if (s->gzhead->hcrc)
-                strm->adler = crc32(strm->adler, s->pending_buf,
-                                    s->pending);
+                strm->adler = crc32_z(strm->adler, s->pending_buf,
+                                      s->pending);
             s->gzindex = 0;
             s->status = EXTRA_STATE;
         }
@@ -1106,9 +1118,9 @@ int ZEXPORT deflate(z_streamp strm, int flush) {
     if (s->status == EXTRA_STATE) {
         if (s->gzhead->extra != Z_NULL) {
             ulg beg = s->pending;   /* start of bytes to update crc */
-            uInt left = (s->gzhead->extra_len & 0xffff) - s->gzindex;
+            ulg left = (s->gzhead->extra_len & 0xffff) - s->gzindex;
             while (s->pending + left > s->pending_buf_size) {
-                uInt copy = s->pending_buf_size - s->pending;
+                ulg copy = s->pending_buf_size - s->pending;
                 zmemcpy(s->pending_buf + s->pending,
                         s->gzhead->extra + s->gzindex, copy);
                 s->pending = s->pending_buf_size;
@@ -1659,7 +1671,7 @@ local block_state deflate_stored(deflate_state *s, int flush) {
      * this is 32K. This can be as small as 507 bytes for memLevel == 1. For
      * large input and output buffers, the stored block size will be larger.
      */
-    unsigned min_block = MIN(s->pending_buf_size - 5, s->w_size);
+    unsigned min_block = (unsigned)(MIN(s->pending_buf_size - 5, s->w_size));
 
     /* Copy as many min_block or larger stored blocks directly to next_out as
      * possible. If flushing, copy the remaining available input to next_out as
@@ -1674,12 +1686,12 @@ local block_state deflate_stored(deflate_state *s, int flush) {
          * would be copied from what's left in the window.
          */
         len = MAX_STORED;       /* maximum deflate stored block length */
-        have = (s->bi_valid + 42) >> 3;         /* number of header bytes */
+        have = ((unsigned)s->bi_valid + 42) >> 3;   /* bytes in header */
         if (s->strm->avail_out < have)          /* need room for header */
             break;
             /* maximum stored block length that will fit in avail_out: */
         have = s->strm->avail_out - have;
-        left = s->strstart - s->block_start;    /* bytes left in window */
+        left = (unsigned)(s->strstart - s->block_start);    /* window bytes */
         if (len > (ulg)left + s->strm->avail_in)
             len = left + s->strm->avail_in;     /* limit len to the input */
         if (len > have)
@@ -1787,7 +1799,7 @@ local block_state deflate_stored(deflate_state *s, int flush) {
         return block_done;
 
     /* Fill the window with any remaining input. */
-    have = s->window_size - s->strstart;
+    have = (unsigned)(s->window_size - s->strstart);
     if (s->strm->avail_in > have && s->block_start >= (long)s->w_size) {
         /* Slide the window down. */
         s->block_start -= s->w_size;
@@ -1814,11 +1826,11 @@ local block_state deflate_stored(deflate_state *s, int flush) {
      * have enough input for a worthy block, or if flushing and there is enough
      * room for the remaining input as a stored block in the pending buffer.
      */
-    have = (s->bi_valid + 42) >> 3;         /* number of header bytes */
+    have = ((unsigned)s->bi_valid + 42) >> 3;   /* bytes in header */
         /* maximum stored block length that will fit in pending: */
-    have = MIN(s->pending_buf_size - have, MAX_STORED);
+    have = (unsigned)MIN(s->pending_buf_size - have, MAX_STORED);
     min_block = MIN(have, s->w_size);
-    left = s->strstart - s->block_start;
+    left = (unsigned)(s->strstart - s->block_start);
     if (left >= min_block ||
         ((left || flush == Z_FINISH) && flush != Z_NO_FLUSH &&
          s->strm->avail_in == 0 && left <= have)) {
