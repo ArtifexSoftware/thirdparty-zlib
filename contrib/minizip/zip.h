@@ -69,6 +69,8 @@ typedef zipFile__ *zipFile;
 typedef voidp zipFile;
 #endif
 
+extern const char zip_copyright[];
+
 #define ZIP_OK                          (0)
 #define ZIP_EOF                         (0)
 #define ZIP_ERRNO                       (Z_ERRNO)

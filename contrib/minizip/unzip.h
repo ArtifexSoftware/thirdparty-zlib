@@ -70,6 +70,8 @@ typedef unzFile__ *unzFile;
 typedef voidp unzFile;
 #endif
 
+extern const char unz_copyright[];
+
 
 #define UNZ_OK                          (0)
 #define UNZ_END_OF_LIST_OF_FILE         (-100)
