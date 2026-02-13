@@ -140,7 +140,7 @@ case "$1" in
     -m* | --mandir) mandir="$2"; shift; shift ;;
     -u* | --uname) uname="$2"; shift; shift ;;
     -s* | --shared | --enable-shared) shared=1; shift ;;
-    -t | --static) shared=0; shift ;;
+    -t | --static | --disable-shared) shared=0; shift ;;
     --solo) solo=1; shift ;;
     --cover) cover=1; shift ;;
     -z* | --zprefix) zprefix=1; shift ;;
