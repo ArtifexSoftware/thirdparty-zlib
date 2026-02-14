@@ -52,6 +52,6 @@ crc32vx/      by Ilya Leoshkevich <iii@linux.ibm.com>
 testzlib/   by Gilles Vollant <info@winimage.com>
         Example of the use of zlib
 
-vstudio/    by Gilles Vollant <info@winimage.com>
-        Building a minizip-enhanced zlib with Microsoft Visual Studio
-        Includes vc11 from kreuzerkrieg and vc12 from davispuh
+zlib1-dll/
+            by @Vollstrecker on github.com
+        Build the legacy zlib1.dll with zlib and minizip.
