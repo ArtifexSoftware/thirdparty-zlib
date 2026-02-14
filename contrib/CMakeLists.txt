@@ -52,4 +52,10 @@ zlib_add_contrib_lib(PUFF "puff decompress library" puff)
 
 if(WIN32)
     zlib_add_contrib_lib(TESTZLIB "testzlib binary" testzlib)
+
+    if (ZLIB_BUILD_ZLIB1_DLL)
+        add_subdirectory(zlib1-dll/)
+    endif (ZLIB_BUILD_ZLIB1_DLL)
+
+    option(ZLIB_BUILD_ZLIB1_DLL "Build the legacy zlib + minizip DLL" OFF)
 endif(WIN32)

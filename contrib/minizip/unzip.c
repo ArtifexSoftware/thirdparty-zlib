@@ -68,6 +68,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef ZLIB_DLL
+#  undef ZLIB_DLL
+#endif
 #include "zlib.h"
 #include "unzip.h"
 
