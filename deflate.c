@@ -1599,7 +1599,7 @@ local uInt longest_match(deflate_state *s, IPos cur_match) {
 local void check_match(deflate_state *s, IPos start, IPos match, int length) {
     /* check that the match is indeed a match */
     Bytef *back = s->window + (int)match, *here = s->window + start;
-    IPos len = length;
+    IPos len = (IPos)length;
     if (match == (IPos)-1) {
         /* match starts one byte before the current window -- just compare the
            subsequent length-1 bytes */
@@ -1893,7 +1893,7 @@ local block_state deflate_fast(deflate_state *s, int flush) {
             /* longest_match() sets match_start */
         }
         if (s->match_length >= MIN_MATCH) {
-            check_match(s, s->strstart, s->match_start, s->match_length);
+            check_match(s, s->strstart, s->match_start, (int)s->match_length);
 
             _tr_tally_dist(s, s->strstart - s->match_start,
                            s->match_length - MIN_MATCH, bflush);
@@ -2015,7 +2015,7 @@ local block_state deflate_slow(deflate_state *s, int flush) {
             uInt max_insert = s->strstart + s->lookahead - MIN_MATCH;
             /* Do not insert strings in hash table beyond this. */
 
-            check_match(s, s->strstart - 1, s->prev_match, s->prev_length);
+            check_match(s, s->strstart - 1, s->prev_match, (int)s->prev_length);
 
             _tr_tally_dist(s, s->strstart - 1 - s->prev_match,
                            s->prev_length - MIN_MATCH, bflush);
@@ -2123,7 +2123,7 @@ local block_state deflate_rle(deflate_state *s, int flush) {
 
         /* Emit match if have run of MIN_MATCH or longer, else emit literal */
         if (s->match_length >= MIN_MATCH) {
-            check_match(s, s->strstart, s->strstart - 1, s->match_length);
+            check_match(s, s->strstart, s->strstart - 1, (int)s->match_length);
 
             _tr_tally_dist(s, 1, s->match_length - MIN_MATCH, bflush);
 

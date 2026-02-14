@@ -188,7 +188,7 @@ local void bi_windup(deflate_state *s) {
     s->bi_buf = 0;
     s->bi_valid = 0;
 #ifdef ZLIB_DEBUG
-    s->bits_sent = (s->bits_sent + 7) & ~7;
+    s->bits_sent = (s->bits_sent + 7) & ~(ulg)7;
 #endif
 }
 
@@ -934,7 +934,7 @@ local void compress_block(deflate_state *s, const ct_data *ltree,
             extra = extra_dbits[code];
             if (extra != 0) {
                 dist -= (unsigned)base_dist[code];
-                send_bits(s, dist, extra);   /* send the extra distance bits */
+                send_bits(s, (int)dist, extra); /* send the extra bits */
             }
         } /* literal or match pair ? */
 
@@ -1085,7 +1085,7 @@ void ZLIB_INTERNAL _tr_flush_block(deflate_state *s, charf *buf,
 #endif
     }
     Tracev((stderr,"\ncomprlen %lu(%lu) ", s->compressed_len >> 3,
-           s->compressed_len - 7*last));
+           s->compressed_len - 7*(ulg)last));
 }
 
 /* ===========================================================================
