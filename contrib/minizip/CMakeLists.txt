@@ -36,7 +36,7 @@ endif(ZLIB_BUILD_MINIZIP)
 option(MINIZIP_BUILD_SHARED "Enable building minizip shared library" ON)
 option(MINIZIP_BUILD_STATIC "Enable building minizip static library" ON)
 option(MINIZIP_BUILD_TESTING "Enable testing of minizip" ON)
-option(MINIZIP_ENABLE_BZIP2 "Build minizip with bzip2 support" ON)
+option(MINIZIP_ENABLE_BZIP2 "Build minizip with bzip2 support" OFF)
 option(MINIZIP_INSTALL "Enable installation of minizip" ON)
 
 include(CheckCSourceCompiles)
