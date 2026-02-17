@@ -16,6 +16,10 @@
 #include "inftrees.h"
 #include "inflate.h"
 
+#ifndef NULL
+#  define NULL 0
+#endif
+
 #define MAXBITS 15
 
 const char inflate_copyright[] =
