@@ -170,8 +170,7 @@ local const config configuration_table[10] = {
 #define CLEAR_HASH(s) \
     do { \
         s->head[s->hash_size - 1] = NIL; \
-        zmemzero((Bytef *)s->head, \
-                 (unsigned)(s->hash_size - 1)*sizeof(*s->head)); \
+        zmemzero(s->head, (unsigned)(s->hash_size - 1)*sizeof(*s->head)); \
         s->slid = 0; \
     } while (0)
 
@@ -1331,13 +1330,13 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source) {
 
     ss = source->state;
 
-    zmemcpy((voidpf)dest, (voidpf)source, sizeof(z_stream));
+    zmemcpy(dest, source, sizeof(z_stream));
 
     ds = (deflate_state *) ZALLOC(dest, 1, sizeof(deflate_state));
     if (ds == Z_NULL) return Z_MEM_ERROR;
     zmemzero(ds, sizeof(deflate_state));
     dest->state = (struct internal_state FAR *) ds;
-    zmemcpy((voidpf)ds, (voidpf)ss, sizeof(deflate_state));
+    zmemcpy(ds, ss, sizeof(deflate_state));
     ds->strm = dest;
 
     ds->window = (Bytef *) ZALLOC(dest, ds->w_size, 2*sizeof(Byte));
@@ -1352,10 +1351,10 @@ int ZEXPORT deflateCopy(z_streamp dest, z_streamp source) {
     }
     /* following zmemcpy's do not work for 16-bit MSDOS */
     zmemcpy(ds->window, ss->window, ss->high_water);
-    zmemcpy((voidpf)ds->prev, (voidpf)ss->prev,
+    zmemcpy(ds->prev, ss->prev,
             (ss->slid || ss->strstart - ss->insert > ds->w_size ? ds->w_size :
                 ss->strstart - ss->insert) * sizeof(Pos));
-    zmemcpy((voidpf)ds->head, (voidpf)ss->head, ds->hash_size * sizeof(Pos));
+    zmemcpy(ds->head, ss->head, ds->hash_size * sizeof(Pos));
 
     ds->pending_out = ds->pending_buf + (ss->pending_out - ss->pending_buf);
     zmemcpy(ds->pending_out, ss->pending_out, ss->pending);
