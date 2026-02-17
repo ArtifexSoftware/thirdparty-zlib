@@ -279,6 +279,7 @@ if test "$gcc" -eq 1 && ($cc -c $test.c) >> configure.log 2>&1; then
   fi
   if test $insecure -eq 1; then
     CFLAGS="${CFLAGS} -DZLIB_INSECURE"
+    SFLAGS="${SFLAGS} -DZLIB_INSECURE"
   fi
   if test $debug -eq 1; then
     CFLAGS="${CFLAGS} -DZLIB_DEBUG"
