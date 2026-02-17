@@ -106,7 +106,8 @@
 #endif
 
 /* If available, use the ARM processor CRC32 instruction. */
-#if defined(__aarch64__) && defined(__ARM_FEATURE_CRC32) && W == 8
+#if defined(__aarch64__) && defined(__ARM_FEATURE_CRC32) && \
+    defined(W) && W == 8
 #  define ARMCRC32
 #endif
 
