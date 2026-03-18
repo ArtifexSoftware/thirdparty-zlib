@@ -191,7 +191,7 @@ if(ZLIB_INSTALL)
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
-            --fresh
+            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},"3.24">:--fresh>
             -G "${CMAKE_GENERATOR}"
             -S${CMAKE_CURRENT_BINARY_DIR}/zlib_find_package_test)
 
@@ -222,7 +222,7 @@ if(ZLIB_INSTALL)
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
-            --fresh
+            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},"3.24">:--fresh>
             -G "${CMAKE_GENERATOR}"
             -S${CMAKE_CURRENT_BINARY_DIR}/zlib_find_package_no_components_test)
 
@@ -249,7 +249,7 @@ if(ZLIB_INSTALL)
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
-            --fresh
+            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},"3.24">:--fresh>
             -G "${CMAKE_GENERATOR}"
             -S${CMAKE_CURRENT_BINARY_DIR}/zlib_find_package_wrong_components_test)
 
@@ -271,7 +271,7 @@ if(ZLIB_INSTALL)
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
-            --fresh
+            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},"3.24">:--fresh>
             -G "${CMAKE_GENERATOR}"
             -S${CMAKE_CURRENT_BINARY_DIR}/zlib_add_subdirectory_test)
 
@@ -302,7 +302,7 @@ if(ZLIB_INSTALL)
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/test_install
-            --fresh
+            $<$<VERSION_GREATER_EQUAL:${CMAKE_VERSION},"3.24">:--fresh>
             -G "${CMAKE_GENERATOR}"
             -S${CMAKE_CURRENT_BINARY_DIR}/zlib_add_subdirectory_exclude_test)
 
