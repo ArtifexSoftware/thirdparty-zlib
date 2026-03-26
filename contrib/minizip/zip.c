@@ -129,6 +129,7 @@ typedef struct linkedlist_data_s
 
 /* zipAlreadyThere() set functions for a set of zero-terminated strings, and
 // a block_t type for reading the central directory datablocks. */
+#define SKIPSET_EXPORT static
 typedef char *set_key_t;
 #define set_cmp(a, b) strcmp(a, b)
 #define set_drop(s, k) set_free(s, k)
